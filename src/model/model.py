@@ -2,6 +2,7 @@
 import sys
 from PyQt5 import QtCore, QtGui, uic
 
+
 qtCreatorFile = "view/model.ui"  # Enter file here.
 
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
