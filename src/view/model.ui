@@ -24,7 +24,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -47,7 +47,7 @@
             <property name="currentIndex">
              <number>0</number>
             </property>
-            <widget class="QWidget" name="tabWidget_2Page1" native="true">
+            <widget class="QWidget" name="tabWidget_2Page1">
              <attribute name="title">
               <string>Automatically</string>
              </attribute>
@@ -88,7 +88,7 @@
               </property>
              </widget>
             </widget>
-            <widget class="QWidget" name="tabWidget_2Page2" native="true">
+            <widget class="QWidget" name="tabWidget_2Page2">
              <attribute name="title">
               <string>Maually</string>
              </attribute>
@@ -198,21 +198,6 @@
         <item>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
-           <widget class="QWebView" name="webView">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="url">
-             <url>
-              <string>about:blank</string>
-             </url>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
            <widget class="QToolBox" name="toolBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -234,8 +219,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>300</width>
-               <height>725</height>
+               <width>98</width>
+               <height>28</height>
               </rect>
              </property>
              <attribute name="label">
@@ -247,7 +232,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>300</width>
+               <width>961</width>
                <height>725</height>
               </rect>
              </property>
@@ -272,13 +257,6 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

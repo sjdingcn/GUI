@@ -3,9 +3,7 @@ import os
 #
 # from PyQt5 import uic
 # from PyQt5.QtWidgets import QApplication, QWidget
-# from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView,QWebEnginePage as QWebPage
-# from PyQt5.QtWebEngineWidgets import QWebEngineSettings as QWebSettings
-#
+
 #
 #
 #
@@ -18,6 +16,7 @@ import os
 #     sys.exit(app.exec_())
 
 from PyQt5 import QtWidgets, uic
+import PyQt5.QtWebEngineWidgets
 
 import sys
 
