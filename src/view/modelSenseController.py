@@ -9,6 +9,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 
+from src.view import lableController
+
 
 class Ui_modelMainWindow(object):
     def setupUi(self, modelMainWindow):
@@ -143,7 +145,7 @@ class Ui_modelMainWindow(object):
         self.statusBar = QtWidgets.QStatusBar(modelMainWindow)
         self.statusBar.setObjectName("statusBar")
         modelMainWindow.setStatusBar(self.statusBar)
-        self.pushButton.clicked.connect(self.openFileNamesDialog)
+
 
         self.retranslateUi(modelMainWindow)
         self.tabWidget.setCurrentIndex(0)
@@ -171,13 +173,7 @@ class Ui_modelMainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("modelMainWindow", "train"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("modelMainWindow", "analyze"))
 
-    def openFileNamesDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        files, _ = QFileDialog.getOpenFileNames(None, "choose images", "",
-                                                "All Files (*);;Python Files (*.py)", options=options)
-        if files:
-            print(files)
+
 
 
 if __name__ == "__main__":
