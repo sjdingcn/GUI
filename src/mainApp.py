@@ -1,16 +1,21 @@
-from src.view.modelSenseController import Ui_modelMainWindow
+# from src.view.modelSenseController import *
 from src.view.lableController import *
+
 from PyQt5 import uic, QtWidgets
 
+from src.view.test import test
 
-class DerivedClassName(Ui_modelMainWindow, LabelController):
 
+class mainApp(laborController, test):
+    pass
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     modelMainWindow = QtWidgets.QMainWindow()
-    ui = Ui_modelMainWindow()
+    ui = mainApp()
     ui.setupUi(modelMainWindow)
+    ui.setupUi2(modelMainWindow)
+    ui.setupUi3(modelMainWindow)
     modelMainWindow.show()
     sys.exit(app.exec_())

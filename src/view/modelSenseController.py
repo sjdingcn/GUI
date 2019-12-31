@@ -7,9 +7,9 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
 
-from src.view import lableController
+
+
 
 
 class Ui_modelMainWindow(object):
@@ -183,5 +183,6 @@ if __name__ == "__main__":
     modelMainWindow = QtWidgets.QMainWindow()
     ui = Ui_modelMainWindow()
     ui.setupUi(modelMainWindow)
+    setupUi2(modelMainWindow)
     modelMainWindow.show()
     sys.exit(app.exec_())
