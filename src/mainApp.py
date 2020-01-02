@@ -1,9 +1,9 @@
 # from src.view.modelSenseController import *
-from src.view.lableController import *
+from src.view.labelController import *
 
 from PyQt5 import uic, QtWidgets
 
-from src.view.test import test
+from src.view.trainController import test
 
 
 class mainApp(laborController, test):
