@@ -35,17 +35,61 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         super(MainSenseController, self).__init__()
 
         self.setupUi(self)
-        self.update()
+        try:
+            self.list_widget_images_update()
+            self.label_page_id_update()
+            self.graphics_view_update()
+        except:
+            pass
+
         self.action_project_add_files.triggered.connect(self.open_file_names_dialog)
         self.push_button_add_files.clicked.connect(self.open_file_names_dialog)
-        self.images_list_widget.itemSelectionChanged.connect(self.selection_handler)
+        self.list_widget_images.itemSelectionChanged.connect(self.selection_handler)
         self.action_file_zoom_in.triggered.connect(lambda: self.zoom_handler(0))
         self.action_file_zoom_out.triggered.connect(lambda: self.zoom_handler(1))
+        self.button_previous_page.clicked.connect(lambda: self.page_turning_handler(0))
+        self.button_next_page.clicked.connect(lambda: self.page_turning_handler(1))
 
     # TODO may change to model build-in method
-    def update(self):
-        self.images_list_widget.clear()
-        self.images_list_widget.addItems(get_images_from_dir(self.label_dest))
+    def list_widget_images_update(self):
+
+        self.list_widget_images.clear()
+        self.list_widget_images.addItems(get_images_from_dir(self.label_dest))
+        self.list_widget_images.setCurrentRow(0)
+
+        print(self.list_widget_images.currentRow())
+        print(self.list_widget_images.currentItem().text())
+
+        # self.graphics_view_update()
+
+    def graphics_view_update(self):
+        scene = QGraphicsScene()
+
+        item = self.list_widget_images.currentItem()
+
+        print(self.list_widget_images.currentRow())
+        print(self.list_widget_images.currentItem().text())
+
+
+        image_name = os.path.join(self.label_dest, item.text())
+
+        img = Image.open(image_name)
+
+        scene.clear()
+        img_q = ImageQt.ImageQt(img)
+        pix_map = QPixmap.fromImage(img_q)
+        scene.addPixmap(pix_map)
+        # w, h = img.size
+        # self.graphics_view.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
+        print(self.graphics_view.setScene(scene))
+        print(self.graphics_view.show())
+
+
+
+    def label_page_id_update(self):
+
+        self.label_page_id.setText(str(self.list_widget_images.currentRow() + 1)
+                                   + ' / ' + str(self.list_widget_images.count()))
 
     def open_file_names_dialog(self):
         options = QFileDialog.Options()
@@ -59,25 +103,16 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             for file in files:
                 shutil.copy2(file, self.label_dest)
 
-            self.update()
+            self.list_widget_images_update()
 
     def selection_handler(self):
-        scene = QGraphicsScene()
 
-        items = [item.text() for item in self.images_list_widget.selectedItems()]
-        image_name = os.path.join(self.label_dest, items[0])
+        # items = [item for item in self.list_widget_images.selectedItems()]
+        # if items is not None:
+        #     self.list_widget_images.setCurrentItem(items[0])
 
-        img = Image.open(image_name)
-
-        scene.clear()
-        img_q = ImageQt.ImageQt(img)
-        pix_map = QPixmap.fromImage(img_q)
-        scene.addPixmap(pix_map)
-        # w, h = img.size
-        # self.graphics_view.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
-
-        self.graphics_view.setScene(scene)
-        self.graphics_view.show()
+        self.label_page_id_update()
+        self.graphics_view_update()
 
     def zoom_handler(self, mode):
         # TODO add wheel event
@@ -85,7 +120,18 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         if mode == 0:
             self.graphics_view.scale(1.1, 1.1)
         else:
-            self.graphics_view.scale(1/1.1, 1/1.1)
+            self.graphics_view.scale(1 / 1.1, 1 / 1.1)
+
+    def page_turning_handler(self, mode):
+        if mode == 0 and 0 < self.list_widget_images.currentRow() <= self.list_widget_images.count() - 1:
+
+            self.list_widget_images.setCurrentRow(self.list_widget_images.currentRow() - 1)
+        elif mode == 1 and 0 <= self.list_widget_images.currentRow() < self.list_widget_images.count() - 1:
+            self.list_widget_images.setCurrentRow(self.list_widget_images.currentRow() + 1)
+        else:
+            pass
+        self.label_page_id_update()
+
 
 if __name__ == "__main__":
     import sys
