@@ -102,9 +102,9 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_3">
+              <widget class="QPushButton" name="push_button_remove_files">
                <property name="text">
-                <string>Remove</string>
+                <string>Remove Files</string>
                </property>
               </widget>
              </item>
@@ -247,7 +247,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>PushButton</string>
+           <string>Previous</string>
           </property>
          </widget>
         </item>
@@ -270,7 +270,7 @@
         <item>
          <widget class="QPushButton" name="button_next_page">
           <property name="text">
-           <string>PushButton</string>
+           <string>Next</string>
           </property>
          </widget>
         </item>
@@ -297,7 +297,7 @@
     <addaction name="action_project_save"/>
     <addaction name="separator"/>
     <addaction name="action_project_add_files"/>
-    <addaction name="action_project_remove_file"/>
+    <addaction name="action_project_remove_files"/>
    </widget>
    <widget class="QMenu" name="menuTrain">
     <property name="title">
@@ -338,7 +338,7 @@
     <string>Add files</string>
    </property>
   </action>
-  <action name="action_project_remove_file">
+  <action name="action_project_remove_files">
    <property name="text">
     <string>Remove file</string>
    </property>

@@ -37,30 +37,26 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         try:
             self.list_widget_images_update()
-            self.label_page_id_update()
-            self.graphics_view_update()
+            # self.label_page_id_update()
+            # self.graphics_view_update() # will cause problem
         except:
             pass
-
         self.action_project_add_files.triggered.connect(self.open_file_names_dialog)
+        self.action_project_remove_files.triggered.connect(self.remove_files_handler)
         self.push_button_add_files.clicked.connect(self.open_file_names_dialog)
+        self.push_button_remove_files.clicked.connect(self.open_file_names_dialog)
         self.list_widget_images.itemSelectionChanged.connect(self.selection_handler)
         self.action_file_zoom_in.triggered.connect(lambda: self.zoom_handler(0))
         self.action_file_zoom_out.triggered.connect(lambda: self.zoom_handler(1))
         self.button_previous_page.clicked.connect(lambda: self.page_turning_handler(0))
         self.button_next_page.clicked.connect(lambda: self.page_turning_handler(1))
 
-    # TODO may change to model build-in method
     def list_widget_images_update(self):
 
         self.list_widget_images.clear()
         self.list_widget_images.addItems(get_images_from_dir(self.label_dest))
-        self.list_widget_images.setCurrentRow(0)
-
-        print(self.list_widget_images.currentRow())
-        print(self.list_widget_images.currentItem().text())
-
-        # self.graphics_view_update()
+        # self.list_widget_images.setCurrentRow(0)
+        # print(self.list_widget_images.item(0).setSelected(True))
 
     def graphics_view_update(self):
         scene = QGraphicsScene()
@@ -68,10 +64,10 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         item = self.list_widget_images.currentItem()
 
         print(self.list_widget_images.currentRow())
-        print(self.list_widget_images.currentItem().text())
-
+        # print(self.list_widget_images.currentItem().text())
 
         image_name = os.path.join(self.label_dest, item.text())
+        print(image_name)
 
         img = Image.open(image_name)
 
@@ -81,15 +77,14 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         scene.addPixmap(pix_map)
         # w, h = img.size
         # self.graphics_view.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
-        print(self.graphics_view.setScene(scene))
-        print(self.graphics_view.show())
-
-
+        self.graphics_view.setScene(scene)
+        self.graphics_view.show()
 
     def label_page_id_update(self):
 
         self.label_page_id.setText(str(self.list_widget_images.currentRow() + 1)
                                    + ' / ' + str(self.list_widget_images.count()))
+
 
     def open_file_names_dialog(self):
         options = QFileDialog.Options()
@@ -104,6 +99,9 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
                 shutil.copy2(file, self.label_dest)
 
             self.list_widget_images_update()
+    # TODO
+    def remove_files_handler(self):
+        self.list_widget_images.removeItemWidget()
 
     def selection_handler(self):
 
