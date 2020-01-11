@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'main_sense.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.0
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -67,12 +65,12 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.list_widget_images)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.push_button_add_files = QtWidgets.QPushButton(self.groupBox_3)
-        self.push_button_add_files.setObjectName("push_button_add_files")
-        self.horizontalLayout_2.addWidget(self.push_button_add_files)
-        self.push_button_remove_files = QtWidgets.QPushButton(self.groupBox_3)
-        self.push_button_remove_files.setObjectName("push_button_remove_files")
-        self.horizontalLayout_2.addWidget(self.push_button_remove_files)
+        self.push_button_add_images = QtWidgets.QPushButton(self.groupBox_3)
+        self.push_button_add_images.setObjectName("push_button_add_images")
+        self.horizontalLayout_2.addWidget(self.push_button_add_images)
+        self.push_button_remove_images = QtWidgets.QPushButton(self.groupBox_3)
+        self.push_button_remove_images.setObjectName("push_button_remove_images")
+        self.horizontalLayout_2.addWidget(self.push_button_remove_images)
         self.verticalLayout_4.addLayout(self.horizontalLayout_2)
         self.verticalLayout_5.addLayout(self.verticalLayout_4)
         self.verticalLayout_3.addWidget(self.groupBox_3)
@@ -87,15 +85,22 @@ class Ui_MainWindow(object):
         self.tabWidget_2.setObjectName("tabWidget_2")
         self.tabWidget_2Page1 = QtWidgets.QWidget()
         self.tabWidget_2Page1.setObjectName("tabWidget_2Page1")
-        self.listWidget_2 = QtWidgets.QListWidget(self.tabWidget_2Page1)
-        self.listWidget_2.setGeometry(QtCore.QRect(10, 40, 151, 161))
-        self.listWidget_2.setObjectName("listWidget_2")
+        self.list_widget_models = QtWidgets.QListWidget(self.tabWidget_2Page1)
+        self.list_widget_models.setGeometry(QtCore.QRect(10, 40, 151, 161))
+        self.list_widget_models.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.list_widget_models.setObjectName("list_widget_models")
         self.label = QtWidgets.QLabel(self.tabWidget_2Page1)
         self.label.setGeometry(QtCore.QRect(10, 20, 111, 17))
         self.label.setObjectName("label")
-        self.pushButton_2 = QtWidgets.QPushButton(self.tabWidget_2Page1)
-        self.pushButton_2.setGeometry(QtCore.QRect(10, 220, 151, 25))
-        self.pushButton_2.setObjectName("pushButton_2")
+        self.push_button_add_models = QtWidgets.QPushButton(self.tabWidget_2Page1)
+        self.push_button_add_models.setGeometry(QtCore.QRect(10, 220, 151, 25))
+        self.push_button_add_models.setObjectName("push_button_add_models")
+        self.push_button_remove_models = QtWidgets.QPushButton(self.tabWidget_2Page1)
+        self.push_button_remove_models.setGeometry(QtCore.QRect(10, 260, 151, 25))
+        self.push_button_remove_models.setObjectName("push_button_remove_models")
+        self.push_button_go = QtWidgets.QPushButton(self.tabWidget_2Page1)
+        self.push_button_go.setGeometry(QtCore.QRect(180, 80, 89, 25))
+        self.push_button_go.setObjectName("push_button_go")
         self.tabWidget_2.addTab(self.tabWidget_2Page1, "")
         self.tabWidget_2Page2 = QtWidgets.QWidget()
         self.tabWidget_2Page2.setObjectName("tabWidget_2Page2")
@@ -197,7 +202,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuAnalyze.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget_2.setCurrentIndex(1)
+        self.tabWidget_2.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -205,10 +210,12 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Project"))
         self.sdfLabel.setText(_translate("MainWindow", "Name: "))
-        self.push_button_add_files.setText(_translate("MainWindow", "Add Files"))
-        self.push_button_remove_files.setText(_translate("MainWindow", "Remove Files"))
+        self.push_button_add_images.setText(_translate("MainWindow", "Add Images"))
+        self.push_button_remove_images.setText(_translate("MainWindow", "Remove Images"))
         self.label.setText(_translate("MainWindow", "Existed Model"))
-        self.pushButton_2.setText(_translate("MainWindow", "Add New Models"))
+        self.push_button_add_models.setText(_translate("MainWindow", "Add Models"))
+        self.push_button_remove_models.setText(_translate("MainWindow", "Remove Models"))
+        self.push_button_go.setText(_translate("MainWindow", "Go"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tabWidget_2Page1), _translate("MainWindow", "Automatically"))
         self.groupBox.setTitle(_translate("MainWindow", "Region Shape"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Attributes"))
@@ -228,3 +235,4 @@ class Ui_MainWindow(object):
         self.action_project_remove_files.setText(_translate("MainWindow", "Remove file"))
         self.action_file_zoom_in.setText(_translate("MainWindow", "Zoom In"))
         self.action_file_zoom_out.setText(_translate("MainWindow", "Zoom Out"))
+

@@ -1,8 +1,8 @@
 import os
 
 from PIL import ImageQt, Image
-from PyQt5.QtCore import QObject, QRectF, Qt
-from PyQt5.QtGui import QPixmap
+
+from PyQt5.QtGui import QPixmap, QImage
 
 from src.model.image import *
 import shutil
@@ -13,11 +13,18 @@ from src.view.main_sense import *
 projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
 
 
-def get_images_from_dir(path):
+def get_files_from_dir(path, mode):
+    end = ()
     ret = []
+    if mode == 'images':
+        end = ('.png', '.xpm', '.jpg')
+    elif mode == 'models':
+        end = '.h5'
+    else:
+        pass
     for _, _, filenames in os.walk(path):
         for filename in filenames:
-            if filename.endswith(('.png', '.xpm', '.jpg')):
+            if filename.endswith(end):
                 ret.append(filename)
     return ret
 
@@ -27,6 +34,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
     project_dest = os.path.join(projects_dest, project_name)
 
     label_dest = os.path.join(project_dest, 'label')
+    auto_detect_dest = os.path.join(project_dest, 'auto_detect')
 
     print(project_dest)
     print(label_dest)
@@ -37,46 +45,63 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         try:
             self.list_widget_images_update()
-            # self.label_page_id_update()
-            # self.graphics_view_update() # will cause problem
+            self.list_widget_models_update()
+            self.label_page_id_update()
+            self.graphics_view_update()
         except:
             pass
+
+        # Controller for menu bar
         self.action_project_add_files.triggered.connect(self.open_file_names_dialog)
         self.action_project_remove_files.triggered.connect(self.remove_files_handler)
-        self.push_button_add_files.clicked.connect(self.open_file_names_dialog)
-        self.push_button_remove_files.clicked.connect(self.open_file_names_dialog)
-        self.list_widget_images.itemSelectionChanged.connect(self.selection_handler)
-        self.action_file_zoom_in.triggered.connect(lambda: self.zoom_handler(0))
-        self.action_file_zoom_out.triggered.connect(lambda: self.zoom_handler(1))
-        self.button_previous_page.clicked.connect(lambda: self.page_turning_handler(0))
-        self.button_next_page.clicked.connect(lambda: self.page_turning_handler(1))
+        self.action_file_zoom_in.triggered.connect(lambda: self.zoom_handler('zoom_in'))
+        self.action_file_zoom_out.triggered.connect(lambda: self.zoom_handler('zoom_out'))
+
+        # Controller for list widget of images
+        self.list_widget_images.itemSelectionChanged.connect(lambda: self.selection_handler('images'))
+        self.push_button_add_images.clicked.connect(lambda: self.open_file_names_dialog('images'))
+        self.push_button_remove_images.clicked.connect(lambda: self.remove_files_handler('images'))
+
+        # Controller for list widget of models
+        self.list_widget_models.itemSelectionChanged.connect(lambda: self.selection_handler('models'))
+        self.push_button_add_models.clicked.connect(lambda: self.open_file_names_dialog('models'))
+        self.push_button_remove_models.clicked.connect(lambda: self.remove_files_handler('models'))
+
+        # Controller for graphic view
+        self.button_previous_page.clicked.connect(lambda: self.page_turning_handler('previous_page'))
+        self.button_next_page.clicked.connect(lambda: self.page_turning_handler('next_page'))
 
     def list_widget_images_update(self):
 
         self.list_widget_images.clear()
-        self.list_widget_images.addItems(get_images_from_dir(self.label_dest))
-        # self.list_widget_images.setCurrentRow(0)
-        # print(self.list_widget_images.item(0).setSelected(True))
+        self.list_widget_images.addItems(get_files_from_dir(self.label_dest, 'images'))
+        self.list_widget_images.setCurrentRow(0)
+
+    def list_widget_models_update(self):
+
+        self.list_widget_models.clear()
+        self.list_widget_models.addItems(get_files_from_dir(self.auto_detect_dest, 'models'))
+        self.list_widget_models.setCurrentRow(0)
 
     def graphics_view_update(self):
+
         scene = QGraphicsScene()
 
         item = self.list_widget_images.currentItem()
 
-        print(self.list_widget_images.currentRow())
-        # print(self.list_widget_images.currentItem().text())
+        if item is not None:
+            image_name = os.path.join(self.label_dest, item.text())
+            scene.clear()
 
-        image_name = os.path.join(self.label_dest, item.text())
-        print(image_name)
-
-        img = Image.open(image_name)
-
-        scene.clear()
-        img_q = ImageQt.ImageQt(img)
-        pix_map = QPixmap.fromImage(img_q)
-        scene.addPixmap(pix_map)
-        # w, h = img.size
-        # self.graphics_view.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
+            with open(image_name, 'rb') as f:
+                img = f.read()
+            image = QImage.fromData(img)
+            pix_map = QPixmap.fromImage(image)
+            scene.addPixmap(pix_map)
+        else:
+            scene.clear()
+            # w, h = img.size
+            # self.graphics_view.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.graphics_view.setScene(scene)
         self.graphics_view.show()
 
@@ -85,50 +110,83 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         self.label_page_id.setText(str(self.list_widget_images.currentRow() + 1)
                                    + ' / ' + str(self.list_widget_images.count()))
 
-
-    def open_file_names_dialog(self):
+    def open_file_names_dialog(self, mode):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        files, _ = QFileDialog.getOpenFileNames(None, "choose images", "",
-                                                "Images (*.png *.xpm *.jpg)", options=options)
-        if files:
-            print(files)
+        if mode == 'images':
 
-            # copy files to the project label folder
-            for file in files:
-                shutil.copy2(file, self.label_dest)
+            files, _ = QFileDialog.getOpenFileNames(None, "choose images", "",
+                                                    "Images (*.png *.xpm *.jpg)", options=options)
+            if files:
+                print(files)
 
+                # copy files to the project label folder
+                for file in files:
+                    shutil.copy2(file, self.label_dest)
+
+                self.list_widget_images_update()
+        elif mode == 'models':
+
+            files, _ = QFileDialog.getOpenFileNames(None, "choose models", "",
+                                                    "Models (*.h5)", options=options)
+            if files:
+                print(files)
+
+                # copy files to the project auto_detect folder
+                for file in files:
+                    shutil.copy2(file, self.auto_detect_dest)
+                self.list_widget_models_update()
+        else:
+            pass
+
+    def remove_files_handler(self, mode):
+        if mode == 'images':
+            for item in self.list_widget_images.selectedItems():
+                self.list_widget_images.takeItem(self.list_widget_images.row(item))
+                os.remove(os.path.join(self.label_dest, item.text()))
             self.list_widget_images_update()
-    # TODO
-    def remove_files_handler(self):
-        self.list_widget_images.removeItemWidget()
+            # self.graphics_view_update()
+            self.label_page_id_update()
+        elif mode == 'models':
+            for item in self.list_widget_models.selectedItems():
+                self.list_widget_models.takeItem(self.list_widget_models.row(item))
+                os.remove(os.path.join(self.auto_detect_dest, item.text()))
+            self.list_widget_models_update()
+        else:
+            pass
 
-    def selection_handler(self):
+    def selection_handler(self, mode):
 
         # items = [item for item in self.list_widget_images.selectedItems()]
         # if items is not None:
         #     self.list_widget_images.setCurrentItem(items[0])
-
-        self.label_page_id_update()
-        self.graphics_view_update()
+        if mode == 'images':
+            self.label_page_id_update()
+            self.graphics_view_update()
+        elif mode == 'models':
+            pass
+        else:
+            pass
 
     def zoom_handler(self, mode):
         # TODO add wheel event
         # TODO default size
-        if mode == 0:
+        if mode == 'zoom_in':
             self.graphics_view.scale(1.1, 1.1)
-        else:
+        elif mode == 'zoom_out':
             self.graphics_view.scale(1 / 1.1, 1 / 1.1)
+        else:
+            pass
 
     def page_turning_handler(self, mode):
-        if mode == 0 and 0 < self.list_widget_images.currentRow() <= self.list_widget_images.count() - 1:
+        if mode == 'previous_page' and 0 < self.list_widget_images.currentRow() <= self.list_widget_images.count() - 1:
 
             self.list_widget_images.setCurrentRow(self.list_widget_images.currentRow() - 1)
-        elif mode == 1 and 0 <= self.list_widget_images.currentRow() < self.list_widget_images.count() - 1:
+        elif mode == 'next_page' and 0 <= self.list_widget_images.currentRow() < self.list_widget_images.count() - 1:
             self.list_widget_images.setCurrentRow(self.list_widget_images.currentRow() + 1)
         else:
             pass
-        self.label_page_id_update()
+        # self.label_page_id_update()
 
 
 if __name__ == "__main__":

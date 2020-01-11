@@ -95,16 +95,16 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
-              <widget class="QPushButton" name="push_button_add_files">
+              <widget class="QPushButton" name="push_button_add_images">
                <property name="text">
-                <string>Add Files</string>
+                <string>Add Images</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="push_button_remove_files">
+              <widget class="QPushButton" name="push_button_remove_images">
                <property name="text">
-                <string>Remove Files</string>
+                <string>Remove Images</string>
                </property>
               </widget>
              </item>
@@ -136,13 +136,13 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tabWidget_2Page1">
          <attribute name="title">
           <string>Automatically</string>
          </attribute>
-         <widget class="QListWidget" name="listWidget_2">
+         <widget class="QListWidget" name="list_widget_models">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -150,6 +150,9 @@
             <width>151</width>
             <height>161</height>
            </rect>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
          </widget>
          <widget class="QLabel" name="label">
@@ -165,7 +168,7 @@
            <string>Existed Model</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="push_button_add_models">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -175,7 +178,33 @@
            </rect>
           </property>
           <property name="text">
-           <string>Add New Models</string>
+           <string>Add Models</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="push_button_remove_models">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>260</y>
+            <width>151</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Remove Models</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="push_button_go">
+          <property name="geometry">
+           <rect>
+            <x>180</x>
+            <y>80</y>
+            <width>89</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Go</string>
           </property>
          </widget>
         </widget>
