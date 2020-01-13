@@ -1,16 +1,14 @@
 import os
 
-from PIL import ImageQt, Image
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon
 
-from PyQt5.QtGui import QPixmap, QImage
-
-from src.model.image import *
 import shutil
 
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene
 from src.view.main_sense import *
+import src.model.auto_detect as auto
 
-projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
+from PyQt5.QtCore import Qt, QPoint
 
 
 def get_files_from_dir(path, mode):
@@ -29,12 +27,22 @@ def get_files_from_dir(path, mode):
     return ret
 
 
-class MainSenseController(QMainWindow, Ui_MainWindow):
-    project_name = 'test'
-    project_dest = os.path.join(projects_dest, project_name)
+class ProjectInfo:
+    def __init__(self):
+        self.projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
+        self.project_name = 'test'
+        self.project_dest = os.path.join(self.projects_dest, self.project_name)
+        self.label_dest = os.path.join(self.project_dest, 'label')
+        self.auto_detect_dest = os.path.join(self.project_dest, 'auto_detect')
 
-    label_dest = os.path.join(project_dest, 'label')
-    auto_detect_dest = os.path.join(project_dest, 'auto_detect')
+
+
+class MainSenseController(QMainWindow, Ui_MainWindow):
+    project_name = ProjectInfo().project_name
+    project_dest = ProjectInfo().project_dest
+
+    label_dest = ProjectInfo().label_dest
+    auto_detect_dest = ProjectInfo().auto_detect_dest
 
     print(project_dest)
     print(label_dest)
@@ -66,6 +74,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         self.list_widget_models.itemSelectionChanged.connect(lambda: self.selection_handler('models'))
         self.push_button_add_models.clicked.connect(lambda: self.open_file_names_dialog('models'))
         self.push_button_remove_models.clicked.connect(lambda: self.remove_files_handler('models'))
+        self.push_button_go.clicked.connect(self.go_handler)
 
         # Controller for graphic view
         self.button_previous_page.clicked.connect(lambda: self.page_turning_handler('previous_page'))
@@ -188,6 +197,35 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             pass
         # self.label_page_id_update()
 
+    def go_handler(self):
+        item = self.list_widget_models.currentItem()
+
+        auto.auto_detection(item.text())
+        print('done')
+
+    def paintEvent(self, event):
+
+        painter = QPainter()
+
+        painter.setPen(QPen(Qt.black, 5, Qt.SolidLine))
+
+        painter.setBrush(QBrush(Qt.black, Qt.SolidPattern))
+
+        points = [
+
+            QPoint(10, 10),
+
+            QPoint(10, 100),
+
+            QPoint(100, 10),
+
+            QPoint(100, 100)
+
+        ]
+
+        poly = QPolygon(points)
+
+        painter.drawPolygon(poly)
 
 if __name__ == "__main__":
     import sys
