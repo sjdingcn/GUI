@@ -1,12 +1,13 @@
+import json
 import os
 
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPolygonF
 
 import shutil
 
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene
 from src.view.main_sense import *
-import src.model.auto_detect as auto
+# import src.model.auto_detect as auto
 
 from PyQt5.QtCore import Qt, QPoint
 
@@ -34,7 +35,6 @@ class ProjectInfo:
         self.project_dest = os.path.join(self.projects_dest, self.project_name)
         self.label_dest = os.path.join(self.project_dest, 'label')
         self.auto_detect_dest = os.path.join(self.project_dest, 'auto_detect')
-
 
 
 class MainSenseController(QMainWindow, Ui_MainWindow):
@@ -95,23 +95,34 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
     def graphics_view_update(self):
 
         scene = QGraphicsScene()
-
+        sense_segmentation = QGraphicsScene()
         item = self.list_widget_images.currentItem()
 
         if item is not None:
             image_name = os.path.join(self.label_dest, item.text())
             scene.clear()
-
             with open(image_name, 'rb') as f:
                 img = f.read()
             image = QImage.fromData(img)
             pix_map = QPixmap.fromImage(image)
             scene.addPixmap(pix_map)
+        # draw polygons
+            # Read dataset information from the json file
+            json_data = json.load(open(os.path.join(self.label_dest, "data.json")))
+
+            # Transfer dict to list
+            json_data = list(json_data.values())
+            polygons = self.json2polygons(json_data, item.text())
+            print(polygons)
+            for polygon in polygons:
+                scene.addPolygon(polygon, QPen(Qt.yellow, 1, Qt.SolidLine))
+            print('polygons')
         else:
             scene.clear()
             # w, h = img.size
             # self.graphics_view.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.graphics_view.setScene(scene)
+
         self.graphics_view.show()
 
     def label_page_id_update(self):
@@ -200,32 +211,50 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
     def go_handler(self):
         item = self.list_widget_models.currentItem()
 
-        auto.auto_detection(item.text())
+        # auto.auto_detection(item.text())
         print('done')
 
-    def paintEvent(self, event):
+    def json2polygons(self, json_data, filename):
 
-        painter = QPainter()
 
-        painter.setPen(QPen(Qt.black, 5, Qt.SolidLine))
+        # Load images and add them to the dataset
+        polygons = []
+        for data in json_data:
 
-        painter.setBrush(QBrush(Qt.black, Qt.SolidPattern))
+            if data["filename"] == filename:
+                regions = data['regions']
 
-        points = [
+                for region in regions:
+                    points = []
+                    num = len(region["shape_attributes"]["all_points_x"])
+                    for i in range(0, num):
+                        points.append(QPoint(region["shape_attributes"]["all_points_x"][i],
+                                             region["shape_attributes"]["all_points_y"][i]))
+                    polygons.append(QPolygonF(points))
+        return polygons
+    # def paintEvent(self, event):
+    #
+    #     painter = QPainter()
+    #
+    #     painter.setPen(QPen(Qt.black, 5, Qt.SolidLine))
+    #
+    #     painter.setBrush(QBrush(Qt.black, Qt.SolidPattern))
+    #
+    #     points = [
+    #
+    #         QPoint(10, 10),
+    #
+    #         QPoint(10, 100),
+    #
+    #         QPoint(100, 10),
+    #
+    #         QPoint(100, 100)
+    #
+    #     ]
+    #
+    #     poly = QPolygon(points)
+    #
 
-            QPoint(10, 10),
-
-            QPoint(10, 100),
-
-            QPoint(100, 10),
-
-            QPoint(100, 100)
-
-        ]
-
-        poly = QPolygon(points)
-
-        painter.drawPolygon(poly)
 
 if __name__ == "__main__":
     import sys
