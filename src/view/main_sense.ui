@@ -272,6 +272,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
        </widget>
       </item>
       <item>
@@ -354,6 +357,10 @@
     <addaction name="separator"/>
     <addaction name="action_file_zoom_in"/>
     <addaction name="action_file_zoom_out"/>
+    <addaction name="separator"/>
+    <addaction name="action_file_default_size"/>
+    <addaction name="separator"/>
+    <addaction name="action_file_delete_polygon"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuFile_2"/>
@@ -389,6 +396,16 @@
   <action name="action_file_zoom_out">
    <property name="text">
     <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="action_file_default_size">
+   <property name="text">
+    <string>Default Size</string>
+   </property>
+  </action>
+  <action name="action_file_delete_polygon">
+   <property name="text">
+    <string>Delete Polygon</string>
    </property>
   </action>
  </widget>

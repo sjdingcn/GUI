@@ -1,15 +1,17 @@
 import json
 import os
 
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPolygonF
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPolygonF, QKeyEvent
 
 import shutil
 
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsItem
+from prompt_toolkit.key_binding import KeyPress
+
 from src.view.main_sense import *
 # import src.model.auto_detect as auto
 
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, QRectF, QSize
 
 
 def get_files_from_dir(path, mode):
@@ -35,6 +37,69 @@ class ProjectInfo:
         self.project_dest = os.path.join(self.projects_dest, self.project_name)
         self.label_dest = os.path.join(self.project_dest, 'label')
         self.auto_detect_dest = os.path.join(self.project_dest, 'auto_detect')
+
+
+# class PolygonItem(QGraphicsItem):
+#     def __init__(self):
+#         super(PolygonItem, self).__init__()
+#
+#     def keyPressEvent(self, event):
+#         if event.key() == Qt.Key_D:
+#             print('delete')
+# TODO rewrite addItem function
+
+class GUIGraphicsScene(QGraphicsScene):
+    def __init__(self):
+        super().__init__()
+
+        self.points = []
+        self.drawing = True
+        self.start = True
+        self.startPoint = QPoint()
+        self.lastPoint = QPoint()
+        self.currentPoint = QPoint()
+        self.PIX_MAP = QPixmap()
+        self.image = QImage(QSize(512, 512), QImage.Format_RGB32)
+
+    # def addPixmap(self, pix_map):
+    #     super().addPixmap(pix_map)
+    #     self.PIX_MAP = pix_map
+
+    # def mouseDoubleClickEvent(self, event):
+    #     # print(event.accept())
+    #     if event.button() == Qt.LeftButton:
+    #         self.drawing = True
+    #         self.lastPoint = event.scenePos()
+    #         print(event.scenePos().x())
+    #     elif event.button() == Qt.RightButton:
+    #         self.drawing = False
+    #     else:
+    #         pass
+
+    def mousePressEvent(self, event):
+
+        if event.button() == Qt.LeftButton:
+            self.points.append(event.scenePos().toPoint())
+
+
+            self.update()
+            print(event.scenePos().x())
+            self.lastPoint = event.scenePos()
+        elif event.button() == Qt.RightButton:
+            self.drawing = False
+            self.start = True
+        else:
+            pass
+
+    def mouseMoveEvent(self, event):
+        self.currentPoint = event.scenePos()
+
+
+    def drawForeground(self, painter, rect):
+        painter.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
+
+        painter.drawConvexPolygon(QPolygon(self.points))
+
 
 
 class MainSenseController(QMainWindow, Ui_MainWindow):
@@ -64,6 +129,8 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         self.action_project_remove_files.triggered.connect(self.remove_files_handler)
         self.action_file_zoom_in.triggered.connect(lambda: self.zoom_handler('zoom_in'))
         self.action_file_zoom_out.triggered.connect(lambda: self.zoom_handler('zoom_out'))
+        self.action_file_default_size.triggered.connect(lambda: self.zoom_handler('default_size'))
+        self.action_file_delete_polygon.triggered.connect(self.delete_polygon_handler)
 
         # Controller for list widget of images
         self.list_widget_images.itemSelectionChanged.connect(lambda: self.selection_handler('images'))
@@ -94,8 +161,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
 
     def graphics_view_update(self):
 
-        scene = QGraphicsScene()
-        sense_segmentation = QGraphicsScene()
+        scene = GUIGraphicsScene()
         item = self.list_widget_images.currentItem()
 
         if item is not None:
@@ -106,21 +172,26 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             image = QImage.fromData(img)
             pix_map = QPixmap.fromImage(image)
             scene.addPixmap(pix_map)
-        # draw polygons
+            # scene.wheelEvent(self.zoom_handler)
+            # w, h = img.size
+            # self.graphics_view.setSceneRect(QRectF(0, 0, 1000, 1000))
+            # draw polygons
             # Read dataset information from the json file
             json_data = json.load(open(os.path.join(self.label_dest, "data.json")))
 
             # Transfer dict to list
             json_data = list(json_data.values())
             polygons = self.json2polygons(json_data, item.text())
-            print(polygons)
+
             for polygon in polygons:
-                scene.addPolygon(polygon, QPen(Qt.yellow, 1, Qt.SolidLine))
+                polygon_item = scene.addPolygon(polygon, QPen(Qt.yellow, 1, Qt.SolidLine))
+                polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
+                                      | QGraphicsItem.ItemIsFocusable)
+
             print('polygons')
         else:
             scene.clear()
-            # w, h = img.size
-            # self.graphics_view.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
+
         self.graphics_view.setScene(scene)
 
         self.graphics_view.show()
@@ -189,12 +260,14 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             pass
 
     def zoom_handler(self, mode):
-        # TODO add wheel event
+        # TODO add wheel event, rewrite the graphic view class using inheritance
         # TODO default size
         if mode == 'zoom_in':
             self.graphics_view.scale(1.1, 1.1)
         elif mode == 'zoom_out':
             self.graphics_view.scale(1 / 1.1, 1 / 1.1)
+        # elif mode == 'default_size':
+        #     self.graphics_view.scale(1 / 1.1, 1 / 1.1)
         else:
             pass
 
@@ -214,8 +287,12 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         # auto.auto_detection(item.text())
         print('done')
 
-    def json2polygons(self, json_data, filename):
+    def delete_polygon_handler(self):
+        items = self.graphics_view.scene().selectedItems()
+        for item in items:
+            self.graphics_view.scene().removeItem(item)
 
+    def json2polygons(self, json_data, filename):
 
         # Load images and add them to the dataset
         polygons = []
