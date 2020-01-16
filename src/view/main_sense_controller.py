@@ -5,7 +5,8 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPoly
 
 import shutil
 
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsItem
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsItem, \
+    QGraphicsSceneHoverEvent
 from prompt_toolkit.key_binding import KeyPress
 
 from src.view.main_sense import *
@@ -48,57 +49,59 @@ class ProjectInfo:
 #             print('delete')
 # TODO rewrite addItem function
 
+
 class GUIGraphicsScene(QGraphicsScene):
     def __init__(self):
         super().__init__()
-
         self.points = []
-        self.drawing = True
-        self.start = True
-        self.startPoint = QPoint()
-        self.lastPoint = QPoint()
-        self.currentPoint = QPoint()
-        self.PIX_MAP = QPixmap()
-        self.image = QImage(QSize(512, 512), QImage.Format_RGB32)
-
-    # def addPixmap(self, pix_map):
-    #     super().addPixmap(pix_map)
-    #     self.PIX_MAP = pix_map
-
-    # def mouseDoubleClickEvent(self, event):
-    #     # print(event.accept())
-    #     if event.button() == Qt.LeftButton:
-    #         self.drawing = True
-    #         self.lastPoint = event.scenePos()
-    #         print(event.scenePos().x())
-    #     elif event.button() == Qt.RightButton:
-    #         self.drawing = False
-    #     else:
-    #         pass
+        # self.test = QGraphicsItem()
 
     def mousePressEvent(self, event):
 
+        # modifiers = QtWidgets.QApplication.keyboardModifiers()
+        # if modifiers == QtCore.Qt.ShiftModifier:
+        #     print('Shift+Click')
+        # elif modifiers == QtCore.Qt.ControlModifier:
+        #     print('Control+Click')
+        # elif modifiers == (QtCore.Qt.ControlModifier |
+        #                    QtCore.Qt.ShiftModifier):
+        #     print('Control+Shift+Click')
+        # else:
+        #     print('Click')
+        # and event.modifiers() == QtCore.Qt.ControlModifier:
         if event.button() == Qt.LeftButton:
-            self.points.append(event.scenePos().toPoint())
-
+            self.points.append(event.scenePos())
 
             self.update()
             print(event.scenePos().x())
-            self.lastPoint = event.scenePos()
         elif event.button() == Qt.RightButton:
-            self.drawing = False
-            self.start = True
+            polygon_item = self.addPolygon(QPolygonF(self.points), QPen(Qt.red, 1, Qt.SolidLine))
+            polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
+                                  | QGraphicsItem.ItemIsFocusable)
+            self.points.clear()
+
         else:
             pass
 
-    def mouseMoveEvent(self, event):
-        self.currentPoint = event.scenePos()
-
-
     def drawForeground(self, painter, rect):
-        painter.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
 
-        painter.drawConvexPolygon(QPolygon(self.points))
+
+        # hover = QGraphicsSceneHoverEvent()
+        # painter.drawLine(hover.scenePos(), self.points[-1])
+        painter.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
+        painter.drawConvexPolygon(QPolygonF(self.points))
+
+    def wheelEvent(self, event):
+        if event.modifiers() == QtCore.Qt.ControlModifier:
+            if event.delta() == 120:
+                MainSenseController.zoom_handler(application, 'zoom_in')
+
+            elif event.delta() == -120:
+                MainSenseController.zoom_handler(application, 'zoom_out')
+
+            else:
+                pass
+
 
 
 
@@ -171,7 +174,8 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
                 img = f.read()
             image = QImage.fromData(img)
             pix_map = QPixmap.fromImage(image)
-            scene.addPixmap(pix_map)
+            pix_map_item = scene.addPixmap(pix_map)
+            # scene.test = pix_map_item
             # scene.wheelEvent(self.zoom_handler)
             # w, h = img.size
             # self.graphics_view.setSceneRect(QRectF(0, 0, 1000, 1000))
