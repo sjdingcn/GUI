@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPoly
 import shutil
 
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsItem, \
-    QGraphicsSceneHoverEvent
+    QGraphicsSceneHoverEvent, QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton
 from prompt_toolkit.key_binding import KeyPress
 
 from src.view.main_sense import *
@@ -40,54 +40,66 @@ class ProjectInfo:
         self.auto_detect_dest = os.path.join(self.project_dest, 'auto_detect')
 
 
-# class PolygonItem(QGraphicsItem):
-#     def __init__(self):
-#         super(PolygonItem, self).__init__()
-#
-#     def keyPressEvent(self, event):
-#         if event.key() == Qt.Key_D:
-#             print('delete')
-# TODO rewrite addItem function
+class GUIPolygonItem(QGraphicsPolygonItem):
+    def __init__(self, polygon):
+        super().__init__(polygon)
 
-
-class GUIGraphicsScene(QGraphicsScene):
-    def __init__(self):
-        super().__init__()
-        self.points = []
-        # self.test = QGraphicsItem()
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_D:
+            application.graphics_view.scene().removeItem(self)
+            print('delete')
 
     def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and event.modifiers() == QtCore.Qt.ControlModifier:
+            self.setSelected(True)
+            print("select")
 
-        # modifiers = QtWidgets.QApplication.keyboardModifiers()
-        # if modifiers == QtCore.Qt.ShiftModifier:
-        #     print('Shift+Click')
-        # elif modifiers == QtCore.Qt.ControlModifier:
-        #     print('Control+Click')
-        # elif modifiers == (QtCore.Qt.ControlModifier |
-        #                    QtCore.Qt.ShiftModifier):
-        #     print('Control+Shift+Click')
-        # else:
-        #     print('Click')
-        # and event.modifiers() == QtCore.Qt.ControlModifier:
-        if event.button() == Qt.LeftButton:
+
+class GUIPixmapItem(QGraphicsPixmapItem):
+    def __init__(self, pixmap):
+        super().__init__(pixmap)
+        self.points = []
+        self.drawing = False
+        self.start = False
+        self.setAcceptHoverEvents(True)
+
+    def mouseDoubleClickEvent(self, event):
+        self.drawing = True
+        self.start = True
+        self.points.append(event.scenePos())
+
+    def mousePressEvent(self, event):
+        self.start = False
+
+        if self.drawing:
+            if event.button() == Qt.LeftButton:
+                self.points.append(event.scenePos())
+                self.update()
+                print(event.scenePos().x())
+            elif event.button() == Qt.RightButton:
+                polygon_item = GUIPolygonItem(QPolygonF(self.points))
+                polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
+                application.graphics_view.scene().addItem(polygon_item)
+
+                polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
+                                      | QGraphicsItem.ItemIsFocusable)
+
+                self.points.clear()
+                self.drawing = False
+            else:
+                pass
+
+
+    def hoverMoveEvent(self, event):
+        if self.drawing:
+            if len(self.points) > 1:
+                self.points.pop()
             self.points.append(event.scenePos())
-
+            print(event.scenePos())
             self.update()
-            print(event.scenePos().x())
-        elif event.button() == Qt.RightButton:
-            polygon_item = self.addPolygon(QPolygonF(self.points), QPen(Qt.red, 1, Qt.SolidLine))
-            polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
-                                  | QGraphicsItem.ItemIsFocusable)
-            self.points.clear()
 
-        else:
-            pass
-
-    def drawForeground(self, painter, rect):
-
-
-        # hover = QGraphicsSceneHoverEvent()
-        # painter.drawLine(hover.scenePos(), self.points[-1])
+    def paint(self, painter, option, widget):
+        painter.drawPixmap(self.boundingRect().toRect(), self.pixmap())
         painter.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
         painter.drawConvexPolygon(QPolygonF(self.points))
 
@@ -101,8 +113,6 @@ class GUIGraphicsScene(QGraphicsScene):
 
             else:
                 pass
-
-
 
 
 class MainSenseController(QMainWindow, Ui_MainWindow):
@@ -150,6 +160,12 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         self.button_previous_page.clicked.connect(lambda: self.page_turning_handler('previous_page'))
         self.button_next_page.clicked.connect(lambda: self.page_turning_handler('next_page'))
 
+        # controller for manully tab
+        self.push_button_add.clicked.connect(self.add_attribute_id)
+        self.push_button_remove.clicked.connect(self.remove_attribute_id)
+
+
+
     def list_widget_images_update(self):
 
         self.list_widget_images.clear()
@@ -164,7 +180,8 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
 
     def graphics_view_update(self):
 
-        scene = GUIGraphicsScene()
+        scene = QGraphicsScene(self.graphics_view)
+
         item = self.list_widget_images.currentItem()
 
         if item is not None:
@@ -174,12 +191,10 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
                 img = f.read()
             image = QImage.fromData(img)
             pix_map = QPixmap.fromImage(image)
-            pix_map_item = scene.addPixmap(pix_map)
-            # scene.test = pix_map_item
-            # scene.wheelEvent(self.zoom_handler)
-            # w, h = img.size
-            # self.graphics_view.setSceneRect(QRectF(0, 0, 1000, 1000))
-            # draw polygons
+            pixmap_item = GUIPixmapItem(pix_map)
+            # pixmap_item.setPixmap(pix_map)
+            scene.addItem(pixmap_item)
+
             # Read dataset information from the json file
             json_data = json.load(open(os.path.join(self.label_dest, "data.json")))
 
@@ -188,7 +203,10 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             polygons = self.json2polygons(json_data, item.text())
 
             for polygon in polygons:
-                polygon_item = scene.addPolygon(polygon, QPen(Qt.yellow, 1, Qt.SolidLine))
+                polygon_item = GUIPolygonItem(polygon)
+                polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
+                scene.addItem(polygon_item)
+
                 polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
                                       | QGraphicsItem.ItemIsFocusable)
 
@@ -313,28 +331,20 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
                                              region["shape_attributes"]["all_points_y"][i]))
                     polygons.append(QPolygonF(points))
         return polygons
-    # def paintEvent(self, event):
-    #
-    #     painter = QPainter()
-    #
-    #     painter.setPen(QPen(Qt.black, 5, Qt.SolidLine))
-    #
-    #     painter.setBrush(QBrush(Qt.black, Qt.SolidPattern))
-    #
-    #     points = [
-    #
-    #         QPoint(10, 10),
-    #
-    #         QPoint(10, 100),
-    #
-    #         QPoint(100, 10),
-    #
-    #         QPoint(100, 100)
-    #
-    #     ]
-    #
-    #     poly = QPolygon(points)
-    #
+
+    def add_attribute_id(self):
+        radio_button_group = QButtonGroup(self.groupBox_2)
+
+        radioButton = QRadioButton(self.groupBox_2)
+        radioButton.setObjectName("radioButton")
+        self.verticalLayout_6.addWidget(radioButton)
+        radioButton.setText(self.line_edit_id.text())
+        radio_button_group.addButton(radioButton)
+    def remove_attribute_id(self):
+        if self.radioButton.isChecked():
+            self.verticalLayout_6.removeWidget(self.radioButton)
+
+
 
 
 if __name__ == "__main__":
