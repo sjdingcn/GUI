@@ -1,16 +1,18 @@
+import collections
 import json
 import os
 
+import sip
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPolygonF, QKeyEvent
 
 import shutil
 
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsItem, \
-    QGraphicsSceneHoverEvent, QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton
+    QGraphicsSceneHoverEvent, QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton, QVBoxLayout
 from prompt_toolkit.key_binding import KeyPress
 
 from src.view.main_sense import *
-# import src.model.auto_detect as auto
+
 
 from PyQt5.QtCore import Qt, QPoint, QRectF, QSize
 
@@ -43,16 +45,32 @@ class ProjectInfo:
 class GUIPolygonItem(QGraphicsPolygonItem):
     def __init__(self, polygon):
         super().__init__(polygon)
+        self.poly = polygon
+        self.setAcceptDrops(True)
+        self.id = ''
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_D:
-            application.graphics_view.scene().removeItem(self)
+            self.scene().removeItem(self)
             print('delete')
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.setSelected(True)
-            print("select")
+        print(self.id)
+        for button in application.radio_button_group.buttons():
+            if self.id == button.text():
+                button.setChecked(True)
+                print('test')
+
+    # TODO need to be optimized
+    # def dragLeaveEvent(self, event):
+    #     event.accept()
+    #     print('test')
+        # polygon_item = GUIPolygonItem(self.poly)
+        # polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
+        # self.scene().addItem(polygon_item)
+
+        # polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
+        #                       | QGraphicsItem.ItemIsFocusable)
 
 
 class GUIPixmapItem(QGraphicsPixmapItem):
@@ -60,16 +78,16 @@ class GUIPixmapItem(QGraphicsPixmapItem):
         super().__init__(pixmap)
         self.points = []
         self.drawing = False
-        self.start = False
+        # self.start = False
         self.setAcceptHoverEvents(True)
 
     def mouseDoubleClickEvent(self, event):
         self.drawing = True
-        self.start = True
+        # self.start = True
         self.points.append(event.scenePos())
 
     def mousePressEvent(self, event):
-        self.start = False
+        # self.start = False
 
         if self.drawing:
             if event.button() == Qt.LeftButton:
@@ -77,18 +95,18 @@ class GUIPixmapItem(QGraphicsPixmapItem):
                 self.update()
                 print(event.scenePos().x())
             elif event.button() == Qt.RightButton:
+
                 polygon_item = GUIPolygonItem(QPolygonF(self.points))
                 polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
-                application.graphics_view.scene().addItem(polygon_item)
+                self.scene().addItem(polygon_item)
 
                 polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
                                       | QGraphicsItem.ItemIsFocusable)
-
+                # self.scene().update()
                 self.points.clear()
                 self.drawing = False
             else:
                 pass
-
 
     def hoverMoveEvent(self, event):
         if self.drawing:
@@ -103,6 +121,7 @@ class GUIPixmapItem(QGraphicsPixmapItem):
         painter.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
         painter.drawConvexPolygon(QPolygonF(self.points))
 
+    # optimize the code: application
     def wheelEvent(self, event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
             if event.delta() == 120:
@@ -113,6 +132,32 @@ class GUIPixmapItem(QGraphicsPixmapItem):
 
             else:
                 pass
+
+
+def json2polygons_ids(json_value, filename):
+    # Load images and add them to the dataset
+    polygons_ids = []
+
+    for value in json_value:
+
+        if value["filename"] == filename:
+            regions = value['regions']
+
+            for region in regions:
+                polygon_id = collections.namedtuple('polygon_id', ['polygon', 'id'])
+                points = []
+                # num = len(region["shape_attributes"]["all_points_x"])
+                # for i in range(0, num):
+                #     points.append(QPoint(region["shape_attributes"]["all_points_x"][i],
+                #                          region["shape_attributes"]["all_points_y"][i]))
+                for x, y in zip(region["shape_attributes"]["all_points_x"], region["shape_attributes"]["all_points_y"]):
+                    points.append(QPoint(x, y))
+                polygon_id.polygon = QPolygonF(points)
+                polygon_id.id = region["region_attributes"]["Attribute"]
+                polygons_ids.append(polygon_id)
+
+
+    return polygons_ids
 
 
 class MainSenseController(QMainWindow, Ui_MainWindow):
@@ -127,7 +172,8 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
 
     def __init__(self):
         super(MainSenseController, self).__init__()
-
+        # self.id = []
+        self.json_data = {}
         self.setupUi(self)
         try:
             self.list_widget_images_update()
@@ -138,6 +184,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             pass
 
         # Controller for menu bar
+        self.action_project_save.triggered.connect(self.project_save_handler)
         self.action_project_add_files.triggered.connect(self.open_file_names_dialog)
         self.action_project_remove_files.triggered.connect(self.remove_files_handler)
         self.action_file_zoom_in.triggered.connect(lambda: self.zoom_handler('zoom_in'))
@@ -159,11 +206,23 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         # Controller for graphic view
         self.button_previous_page.clicked.connect(lambda: self.page_turning_handler('previous_page'))
         self.button_next_page.clicked.connect(lambda: self.page_turning_handler('next_page'))
+        self.graphics_view.scene().changed.connect(self.polygons_ids2json)
 
-        # controller for manully tab
+        # controller for manually tab
+        self.radio_button_group = QButtonGroup(self.groupBox_2)
+        self.radio_button_group.setExclusive(True)
         self.push_button_add.clicked.connect(self.add_attribute_id)
         self.push_button_remove.clicked.connect(self.remove_attribute_id)
+        self.radio_button_group.buttonClicked.connect(self.id_changed_handler)
+        print(self.radio_button_group.buttons())
+        for button in self.radio_button_group.buttons():
+            self.verticalLayout_6.addWidget(button)
 
+
+    def project_save_handler(self):
+        with open(os.path.join(self.label_dest, 'data.json'), 'w') as outfile:
+            json.dump(self.json_data, outfile)
+        # print('test')
 
 
     def list_widget_images_update(self):
@@ -196,23 +255,25 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             scene.addItem(pixmap_item)
 
             # Read dataset information from the json file
-            json_data = json.load(open(os.path.join(self.label_dest, "data.json")))
+            self.json_data = json.load(open(os.path.join(self.label_dest, "data.json")))
 
             # Transfer dict to list
-            json_data = list(json_data.values())
-            polygons = self.json2polygons(json_data, item.text())
+            json_value = list(self.json_data.values())
+            polygons_ids = json2polygons_ids(json_value, item.text())
 
-            for polygon in polygons:
-                polygon_item = GUIPolygonItem(polygon)
+            for polygon_id in polygons_ids:
+                polygon_item = GUIPolygonItem(polygon_id.polygon)
                 polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
                 scene.addItem(polygon_item)
 
                 polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
                                       | QGraphicsItem.ItemIsFocusable)
+                polygon_item.id = polygon_id.id
 
             print('polygons')
         else:
             scene.clear()
+        # scene.update()
 
         self.graphics_view.setScene(scene)
 
@@ -304,9 +365,10 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         # self.label_page_id_update()
 
     def go_handler(self):
+        import src.model.auto_detect as auto
         item = self.list_widget_models.currentItem()
 
-        # auto.auto_detection(item.text())
+        auto.auto_detection(item.text())
         print('done')
 
     def delete_polygon_handler(self):
@@ -314,38 +376,51 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         for item in items:
             self.graphics_view.scene().removeItem(item)
 
-    def json2polygons(self, json_data, filename):
-
-        # Load images and add them to the dataset
-        polygons = []
-        for data in json_data:
-
-            if data["filename"] == filename:
-                regions = data['regions']
-
-                for region in regions:
-                    points = []
-                    num = len(region["shape_attributes"]["all_points_x"])
-                    for i in range(0, num):
-                        points.append(QPoint(region["shape_attributes"]["all_points_x"][i],
-                                             region["shape_attributes"]["all_points_y"][i]))
-                    polygons.append(QPolygonF(points))
-        return polygons
 
     def add_attribute_id(self):
-        radio_button_group = QButtonGroup(self.groupBox_2)
 
-        radioButton = QRadioButton(self.groupBox_2)
-        radioButton.setObjectName("radioButton")
-        self.verticalLayout_6.addWidget(radioButton)
-        radioButton.setText(self.line_edit_id.text())
-        radio_button_group.addButton(radioButton)
+        radio_button = QRadioButton(self.groupBox_2)
+        radio_button.setObjectName("radio_button")
+        self.verticalLayout_6.addWidget(radio_button)
+        radio_button.setText(self.line_edit_id.text())
+        self.radio_button_group.addButton(radio_button)
+        # self.id.append(radio_button.text())
+
     def remove_attribute_id(self):
-        if self.radioButton.isChecked():
-            self.verticalLayout_6.removeWidget(self.radioButton)
+        self.verticalLayout_6.removeWidget(self.radio_button_group.checkedButton())
+        self.radio_button_group.checkedButton().deleteLater()
+        self.radio_button_group.removeButton(self.radio_button_group.checkedButton())
+        # self.id.remove(self.radio_button_group.checkedButton().text())
 
+    def polygons_ids2json(self):
+        # self.graphics_view.scene().update()
+        regions = []
+        for item in self.graphics_view.scene().items():
+            if isinstance(item, GUIPolygonItem):
+                x = []
+                y = []
+                for i in range(0, item.polygon().count()):
+                    x.append(item.polygon().toPolygon().point(i).x())
+                    y.append(item.polygon().toPolygon().point(i).y())
+                # print(x)
+                region = {"shape_attributes": {"name": "polygon", "all_points_x": x,
+                                               "all_points_y": y},
+                          "region_attributes": {"Attribute": item.id}}
+                # print(item.id)
+                regions.append(region)
+        filename = self.list_widget_images.currentItem().text()
+        path = os.path.join(self.label_dest, filename)
 
+        size = os.stat(path).st_size
+        key = filename + str(size)
 
+        self.json_data[key] = {"filename": filename, "size": size, "regions": regions, "file_attributes": {}}
+        self.project_save_handler()
+
+    def id_changed_handler(self):
+        self.graphics_view.scene().selectedItems()[0].id = self.radio_button_group.checkedButton().text()
+        self.polygons_ids2json()
+        print('tetsstest')
 
 if __name__ == "__main__":
     import sys

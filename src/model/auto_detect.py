@@ -112,7 +112,7 @@ def auto_detection(auto_detect_name):
 
                     region = {"shape_attributes": {"name": "polygon", "all_points_x": c[:, 0, 0].tolist(),
                                                    "all_points_y": c[:, 0, 1].tolist()},
-                              "region_attributes": {"Attribute": "id"}}
+                              "region_attributes": {"Attribute": ""}}
                     regions.append(region)
                 path = os.path.join(label_DIR, filename)
 
