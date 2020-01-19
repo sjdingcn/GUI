@@ -16,7 +16,7 @@ img_path = gb.glob("/home/sijie/Desktop/GUI/stock/projects/test/label/*.png")
 img_path2 = "/home/sijie/Desktop/GUI/stock/projects/test/data/"
 rootdir = r'/home/sijie/Desktop/GUI/stock/projects/test/label/'
 
-def main(argv):
+def main(argv=None):
     for parent, dirnames, filenames in os.walk(rootdir):
         print("test")
         for filename in filenames:
@@ -148,4 +148,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main(sys.argv)

@@ -443,7 +443,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         print('tetsstest')
 
     def train_configurations_handler(self):
-        ready.main()
+        ready.main(sys.argv)
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
 
@@ -452,6 +452,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         msg.setWindowTitle("Ready to Train")
 
         msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
     def train_handler(self):
         # os.system("gnome-terminal -e 'python3 /home/sijie/Desktop/GUI/src/model/project.py train "
