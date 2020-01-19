@@ -16,7 +16,7 @@ img_path = gb.glob("/home/sijie/Desktop/GUI/stock/projects/test/label/*.png")
 img_path2 = "/home/sijie/Desktop/GUI/stock/projects/test/data/"
 rootdir = r'/home/sijie/Desktop/GUI/stock/projects/test/label/'
 
-def main(argv=None):
+def rotate():
     for parent, dirnames, filenames in os.walk(rootdir):
         print("test")
         for filename in filenames:
@@ -51,65 +51,69 @@ def main(argv=None):
                 transposed270.save(img_path2 + name + "(3).png")
 
 
-
+def ready():
     all_data = {}
     with open('/home/sijie/Desktop/GUI/stock/projects/test/label/data.json') as json_file:
         data = json.load(json_file)
-    for path in img_path:
+    for _, _, filenames in os.walk(rootdir):
+        for filename in filenames:
+            if filename.endswith('.png'):
+    # for path in img_path:
+    #             print(filename)
+            #     (img_dir, filename) = os.path.split(path)
+                size = os.stat(os.path.join(img_path2, filename)).st_size
+                key = filename + str(size)
+                # print(key)
+                name, suffix = os.path.splitext(filename)
+                regions = data[key]["regions"]
 
-        (img_dir, filename) = os.path.split(path)
-        size = os.stat(os.path.join(img_path2, filename)).st_size
-        key = filename + str(size)
-        # print(key)
-        name, suffix = os.path.splitext(filename)
-        regions = data[key]["regions"]
+                regions1, regions2, regions3 = [], [], []
+                for x in regions:
+                    temp1 = copy.deepcopy(x)
+                    temp2 = copy.deepcopy(x)
+                    temp3 = copy.deepcopy(x)
+                    all_points_x_rotate = [512 - i for i in x["shape_attributes"]["all_points_x"]]
+                    all_points_y_rotate = [512 - i for i in x["shape_attributes"]["all_points_y"]]
+                    all_points_x = x["shape_attributes"]["all_points_x"]
+                    all_points_y = x["shape_attributes"]["all_points_y"]
 
-        regions1, regions2, regions3 = [], [], []
-        for x in regions:
-            temp1 = copy.deepcopy(x)
-            temp2 = copy.deepcopy(x)
-            temp3 = copy.deepcopy(x)
-            all_points_x_rotate = [512 - i for i in x["shape_attributes"]["all_points_x"]]
-            all_points_y_rotate = [512 - i for i in x["shape_attributes"]["all_points_y"]]
-            all_points_x = x["shape_attributes"]["all_points_x"]
-            all_points_y = x["shape_attributes"]["all_points_y"]
+                    temp1["shape_attributes"]["all_points_x"] = all_points_y
+                    temp1["shape_attributes"]["all_points_y"] = all_points_x_rotate
+                    regions1.append(temp1)
 
-            temp1["shape_attributes"]["all_points_x"] = all_points_y
-            temp1["shape_attributes"]["all_points_y"] = all_points_x_rotate
-            regions1.append(temp1)
+                    temp2["shape_attributes"]["all_points_x"] = all_points_x_rotate
+                    temp2["shape_attributes"]["all_points_y"] = all_points_y_rotate
+                    regions2.append(temp2)
 
-            temp2["shape_attributes"]["all_points_x"] = all_points_x_rotate
-            temp2["shape_attributes"]["all_points_y"] = all_points_y_rotate
-            regions2.append(temp2)
+                    temp3["shape_attributes"]["all_points_x"] = all_points_y_rotate
+                    temp3["shape_attributes"]["all_points_y"] = all_points_x
+                    regions3.append(temp3)
 
-            temp3["shape_attributes"]["all_points_x"] = all_points_y_rotate
-            temp3["shape_attributes"]["all_points_y"] = all_points_x
-            regions3.append(temp3)
-
-        filename1 = name + "(1).png"
-        filename2 = name + "(2).png"
-        filename3 = name + "(3).png"
-        size1 = os.stat(os.path.join(img_path2, filename1)).st_size
-        size2 = os.stat(os.path.join(img_path2, filename2)).st_size
-        size3 = os.stat(os.path.join(img_path2, filename3)).st_size
-        # print(os.path.join(img_path2, filename3))
-        key1 = filename1 + str(size1)
-        key2 = filename2 + str(size2)
-        key3 = filename3 + str(size3)
-        all_data[key] = {"filename": filename, "size": size, "regions": regions, "file_attributes": {}}
-        all_data[key1] = {"filename": filename1, "size": size1, "regions": regions1, "file_attributes": {}}
-        all_data[key2] = {"filename": filename2, "size": size2, "regions": regions2, "file_attributes": {}}
-        all_data[key3] = {"filename": filename3, "size": size3, "regions": regions3, "file_attributes": {}}
-        # break
+                filename1 = name + "(1).png"
+                filename2 = name + "(2).png"
+                filename3 = name + "(3).png"
+                size1 = os.stat(os.path.join(img_path2, filename1)).st_size
+                size2 = os.stat(os.path.join(img_path2, filename2)).st_size
+                size3 = os.stat(os.path.join(img_path2, filename3)).st_size
+                # print(os.path.join(img_path2, filename3))
+                key1 = filename1 + str(size1)
+                key2 = filename2 + str(size2)
+                key3 = filename3 + str(size3)
+                all_data[key] = {"filename": filename, "size": size, "regions": regions, "file_attributes": {}}
+                all_data[key1] = {"filename": filename1, "size": size1, "regions": regions1, "file_attributes": {}}
+                all_data[key2] = {"filename": filename2, "size": size2, "regions": regions2, "file_attributes": {}}
+                all_data[key3] = {"filename": filename3, "size": size3, "regions": regions3, "file_attributes": {}}
+                # break
     # json_data = json.dumps(all_data)
     # print(json_data)
     train = {}
     val = {}
     test = {}
-
+    # print(all_data)
+    # print(len(list(all_data.items())))
     # write val json file
     print("val")
-    for i in range(0, 32):
+    for i in range(0, 12):
         data_key, data_value = random.choice(list(all_data.items()))
         val[data_key] = data_value
         all_data.pop(data_key)
@@ -123,7 +127,7 @@ def main(argv=None):
 
     # write test json file
     print("test")
-    for i in range(0, 32):
+    for i in range(0, 12):
         data_key, data_value = random.choice(list(all_data.items()))
         test[data_key] = data_value
         all_data.pop(data_key)
@@ -147,5 +151,5 @@ def main(argv=None):
         json.dump(train, outfile)
 
 
-if __name__ == "__main__":
-    main(sys.argv)
+# if __name__ == "__main__":
+#     main(sys.argv)

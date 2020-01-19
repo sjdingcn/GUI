@@ -2,6 +2,7 @@ import collections
 import glob
 import json
 import os
+import time
 
 import sip
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPolygonF, QKeyEvent
@@ -224,6 +225,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
     #     print('clear')
 
     def project_save_handler(self):
+        # TODO do not overwrite the json file each time, in case not every image was labeled (sometimes it may success?)
         with open(os.path.join(self.label_dest, 'data.json'), 'w') as outfile:
             json.dump(self.json_data, outfile)
         # print('test')
@@ -258,7 +260,10 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             scene.addItem(pixmap_item)
 
             # Read dataset information from the json file
-            self.json_data = json.load(open(os.path.join(self.label_dest, "data.json")))
+            try:
+                self.json_data = json.load(open(os.path.join(self.label_dest, "data.json")))
+            except FileNotFoundError:
+                pass
 
             # Transfer dict to list
             json_value = list(self.json_data.values())
@@ -443,7 +448,8 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         print('tetsstest')
 
     def train_configurations_handler(self):
-        ready.main(sys.argv)
+        ready.rotate()
+        ready.ready()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
 
@@ -460,14 +466,9 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         os.system("gnome-terminal -e 'bash -c \"python3 /home/sijie/Desktop/GUI/src/model/project.py train "
                   "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco; exec bash\"'")
 
-    def run_command(self):
-        cmd = str(self.le.text())
-        stdouterr = os.popen4(cmd)[1].read()
-        self.te.setText(stdouterr)
-
     def analyze_tensorboard_handler(self):
-        # weights_path = '/home/sijie/Desktop/Sijie/ALCUBrass/logs/alcubrass20191018T1524/'
-        weights_path = max(glob.glob(os.path.join('/home/sijie/Desktop/GUI/stock/projects/test/logs/', '*/')), key=os.path.getmtime)
+        weights_path = '/home/sijie/Desktop/Sijie/ALCUBrass/logs/alcubrass20191018T1524/'
+        # weights_path = max(glob.glob(os.path.join('/home/sijie/Desktop/GUI/stock/projects/test/logs/', '*/')), key=os.path.getmtime)
         os.system("gnome-terminal -e 'bash -c \"tensorboard --logdir " + weights_path + "; exec bash\"'")
 
 if __name__ == "__main__":

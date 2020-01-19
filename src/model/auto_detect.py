@@ -65,6 +65,7 @@ config.display()
 # Useful if you're training a model on the same 
 # machine, in which case use CPU and leave the
 # GPU for training.
+# TODO
 DEVICE = "/gpu:0"  # /cpu:0 or /gpu:0
 
 # Inspect the model in training or inference modes
