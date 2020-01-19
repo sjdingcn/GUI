@@ -16,7 +16,6 @@ import mrcnn.model as modellib
 from mrcnn import visualize
 
 import src.model.project as project
-from src.view.main_sense_controller import ProjectInfo
 import numpy as np
 
 import cv2 as cv
@@ -31,15 +30,19 @@ ROOT_DIR = os.path.abspath("")
 sys.path.append(ROOT_DIR)  # To find local version of the library
 
 # Directory to save logs and trained model
-MODEL_DIR = os.path.join(ProjectInfo().auto_detect_dest)
+
+
 # Path to Ballon trained weights
 
 # ## Configurations
 
 
 config = project.projectConfig()
-project_DIR = ProjectInfo().project_dest
-label_DIR = ProjectInfo().label_dest
+projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
+project_name = 'test'
+project_DIR = os.path.join(projects_dest, project_name)
+label_DIR = os.path.join(project_DIR, 'label')
+MODEL_DIR = os.path.join(project_DIR, 'auto_detect')
 
 
 # Override the training configurations with a few

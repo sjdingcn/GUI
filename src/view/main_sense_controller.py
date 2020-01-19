@@ -1,4 +1,5 @@
 import collections
+import glob
 import json
 import os
 
@@ -8,12 +9,14 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPoly
 import shutil
 
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsItem, \
-    QGraphicsSceneHoverEvent, QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton, QVBoxLayout
+    QGraphicsSceneHoverEvent, QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton, QVBoxLayout, \
+    QMessageBox, QLabel, QLineEdit, QTextEdit
+# from mrcnn import model
 from prompt_toolkit.key_binding import KeyPress
 
 from src.view.main_sense import *
 
-
+import src.model.ready as ready
 from PyQt5.QtCore import Qt, QPoint, QRectF, QSize
 
 
@@ -33,20 +36,11 @@ def get_files_from_dir(path, mode):
     return ret
 
 
-class ProjectInfo:
-    def __init__(self):
-        self.projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
-        self.project_name = 'test'
-        self.project_dest = os.path.join(self.projects_dest, self.project_name)
-        self.label_dest = os.path.join(self.project_dest, 'label')
-        self.auto_detect_dest = os.path.join(self.project_dest, 'auto_detect')
-
-
 class GUIPolygonItem(QGraphicsPolygonItem):
-    def __init__(self, polygon):
-        super().__init__(polygon)
-        self.poly = polygon
-        self.setAcceptDrops(True)
+    def __init__(self, polygon, parent):
+        super(GUIPolygonItem, self).__init__(polygon, parent)
+
+        # self.setAcceptDrops(True)
         self.id = ''
 
     def keyPressEvent(self, event):
@@ -65,17 +59,17 @@ class GUIPolygonItem(QGraphicsPolygonItem):
     # def dragLeaveEvent(self, event):
     #     event.accept()
     #     print('test')
-        # polygon_item = GUIPolygonItem(self.poly)
-        # polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
-        # self.scene().addItem(polygon_item)
+    # polygon_item = GUIPolygonItem(self.poly)
+    # polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
+    # self.scene().addItem(polygon_item)
 
-        # polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
-        #                       | QGraphicsItem.ItemIsFocusable)
+    # polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
+    #                       | QGraphicsItem.ItemIsFocusable)
 
 
 class GUIPixmapItem(QGraphicsPixmapItem):
     def __init__(self, pixmap):
-        super().__init__(pixmap)
+        super(GUIPixmapItem, self).__init__(pixmap)
         self.points = []
         self.drawing = False
         # self.start = False
@@ -96,9 +90,9 @@ class GUIPixmapItem(QGraphicsPixmapItem):
                 print(event.scenePos().x())
             elif event.button() == Qt.RightButton:
 
-                polygon_item = GUIPolygonItem(QPolygonF(self.points))
+                polygon_item = GUIPolygonItem(QPolygonF(self.points), self)
                 polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
-                self.scene().addItem(polygon_item)
+                # self.scene().addItem(polygon_item)
 
                 polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
                                       | QGraphicsItem.ItemIsFocusable)
@@ -156,16 +150,16 @@ def json2polygons_ids(json_value, filename):
                 polygon_id.id = region["region_attributes"]["Attribute"]
                 polygons_ids.append(polygon_id)
 
-
     return polygons_ids
 
 
 class MainSenseController(QMainWindow, Ui_MainWindow):
-    project_name = ProjectInfo().project_name
-    project_dest = ProjectInfo().project_dest
+    projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
+    project_name = 'test'
+    project_dest = os.path.join(projects_dest, project_name)
 
-    label_dest = ProjectInfo().label_dest
-    auto_detect_dest = ProjectInfo().auto_detect_dest
+    label_dest = os.path.join(project_dest, 'label')
+    auto_detect_dest = os.path.join(project_dest, 'auto_detect')
 
     print(project_dest)
     print(label_dest)
@@ -191,6 +185,9 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         self.action_file_zoom_out.triggered.connect(lambda: self.zoom_handler('zoom_out'))
         self.action_file_default_size.triggered.connect(lambda: self.zoom_handler('default_size'))
         self.action_file_delete_polygon.triggered.connect(self.delete_polygon_handler)
+        self.action_train_edit_configurations.triggered.connect(self.train_configurations_handler)
+        self.action_train_train.triggered.connect(self.train_handler)
+        self.action_analyze_tensorboard.triggered.connect(self.analyze_tensorboard_handler)
 
         # Controller for list widget of images
         self.list_widget_images.itemSelectionChanged.connect(lambda: self.selection_handler('images'))
@@ -206,7 +203,8 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         # Controller for graphic view
         self.button_previous_page.clicked.connect(lambda: self.page_turning_handler('previous_page'))
         self.button_next_page.clicked.connect(lambda: self.page_turning_handler('next_page'))
-        self.graphics_view.scene().changed.connect(self.polygons_ids2json)
+        if self.graphics_view.scene():
+            self.graphics_view.scene().changed.connect(self.polygons_ids2json)
 
         # controller for manually tab
         self.radio_button_group = QButtonGroup(self.groupBox_2)
@@ -217,13 +215,18 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         print(self.radio_button_group.buttons())
         for button in self.radio_button_group.buttons():
             self.verticalLayout_6.addWidget(button)
+        # self.graphics_view.scene().selectionChanged.connect(self.clear_all_check)
 
+    # def clear_all_check(self):
+    #     for button in self.radio_button_group.buttons():
+    #         button.setChecked(False)
+    #         print(self.radio_button_group.buttons())
+    #     print('clear')
 
     def project_save_handler(self):
         with open(os.path.join(self.label_dest, 'data.json'), 'w') as outfile:
             json.dump(self.json_data, outfile)
         # print('test')
-
 
     def list_widget_images_update(self):
 
@@ -262,9 +265,9 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             polygons_ids = json2polygons_ids(json_value, item.text())
 
             for polygon_id in polygons_ids:
-                polygon_item = GUIPolygonItem(polygon_id.polygon)
+                polygon_item = GUIPolygonItem(polygon_id.polygon, pixmap_item)
                 polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
-                scene.addItem(polygon_item)
+                # scene.addItem(polygon_item)
 
                 polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
                                       | QGraphicsItem.ItemIsFocusable)
@@ -369,13 +372,14 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         item = self.list_widget_models.currentItem()
 
         auto.auto_detection(item.text())
+        # self.json_data.clear()
+        self.graphics_view_update()
         print('done')
 
     def delete_polygon_handler(self):
         items = self.graphics_view.scene().selectedItems()
         for item in items:
             self.graphics_view.scene().removeItem(item)
-
 
     def add_attribute_id(self):
 
@@ -397,30 +401,73 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         regions = []
         for item in self.graphics_view.scene().items():
             if isinstance(item, GUIPolygonItem):
+                # print(item.pos())
+                ##########################
                 x = []
                 y = []
                 for i in range(0, item.polygon().count()):
-                    x.append(item.polygon().toPolygon().point(i).x())
-                    y.append(item.polygon().toPolygon().point(i).y())
+                    x.append(item.polygon().toPolygon().point(i).x() + item.pos().x())
+                    y.append(item.polygon().toPolygon().point(i).y() + item.pos().y())
+                ################################
                 # print(x)
+                # print(y)
+                # item.setPos(item.pos())
+                # x1 = []
+                # y1 = []
+                # for i in range(0, item.polygon().count()):
+                #     # item.setPos(item.pos())
+                #     x1.append(item.polygon().toPolygon().point(i).x())
+                #     y1.append(item.polygon().toPolygon().point(i).y())
+                # print(x1)
+                # print(y1)
+
                 region = {"shape_attributes": {"name": "polygon", "all_points_x": x,
                                                "all_points_y": y},
                           "region_attributes": {"Attribute": item.id}}
                 # print(item.id)
                 regions.append(region)
-        filename = self.list_widget_images.currentItem().text()
-        path = os.path.join(self.label_dest, filename)
+        if self.list_widget_images.currentItem():
+            filename = self.list_widget_images.currentItem().text()
+            path = os.path.join(self.label_dest, filename)
 
-        size = os.stat(path).st_size
-        key = filename + str(size)
+            size = os.stat(path).st_size
+            key = filename + str(size)
 
-        self.json_data[key] = {"filename": filename, "size": size, "regions": regions, "file_attributes": {}}
-        self.project_save_handler()
+            self.json_data[key] = {"filename": filename, "size": size, "regions": regions, "file_attributes": {}}
+            self.project_save_handler()
 
     def id_changed_handler(self):
-        self.graphics_view.scene().selectedItems()[0].id = self.radio_button_group.checkedButton().text()
+        if self.graphics_view.scene().selectedItems() and self.radio_button_group.checkedButton():
+            self.graphics_view.scene().selectedItems()[0].id = self.radio_button_group.checkedButton().text()
         self.polygons_ids2json()
         print('tetsstest')
+
+    def train_configurations_handler(self):
+        ready.main()
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+
+        msg.setText("Edit Training Configurations Successfully")
+        # msg.setInformativeText("This is additional information")
+        msg.setWindowTitle("Ready to Train")
+
+        msg.setStandardButtons(QMessageBox.Ok)
+
+    def train_handler(self):
+        # os.system("gnome-terminal -e 'python3 /home/sijie/Desktop/GUI/src/model/project.py train "
+        #           "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco'")
+        os.system("gnome-terminal -e 'bash -c \"python3 /home/sijie/Desktop/GUI/src/model/project.py train "
+                  "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco; exec bash\"'")
+
+    def run_command(self):
+        cmd = str(self.le.text())
+        stdouterr = os.popen4(cmd)[1].read()
+        self.te.setText(stdouterr)
+
+    def analyze_tensorboard_handler(self):
+        # weights_path = '/home/sijie/Desktop/Sijie/ALCUBrass/logs/alcubrass20191018T1524/'
+        weights_path = max(glob.glob(os.path.join('/home/sijie/Desktop/GUI/stock/projects/test/logs/', '*/')), key=os.path.getmtime)
+        os.system("gnome-terminal -e 'bash -c \"tensorboard --logdir " + weights_path + "; exec bash\"'")
 
 if __name__ == "__main__":
     import sys

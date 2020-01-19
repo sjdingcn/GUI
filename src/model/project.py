@@ -19,8 +19,8 @@ import imgaug
 import colorsys
 
 # Root directory of the project
-ROOT_DIR = os.path.abspath("")
-
+# ROOT_DIR = os.path.abspath("")
+ROOT_DIR = '/home/sijie/Desktop/GUI/stock/projects/test'
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn.config import Config
@@ -73,9 +73,9 @@ class projectDataset(utils.Dataset):
 
     def load_project(self, datasetDir, subset):
         # Setup classes
-        self.add_class("project", 1, "AL")
-        self.add_class("project", 2, "CU")
-        self.add_class("project", 3, "Brass")
+        self.add_class("Attribute", 1, "AL")
+        self.add_class("Attribute", 2, "CU")
+        self.add_class("Attribute", 3, "Brass")
         # Create dataset path
         # assert subset in ["train", "val", "test"]
         datasetDir = os.path.join(datasetDir, subset)
@@ -91,7 +91,7 @@ class projectDataset(utils.Dataset):
             height, width = image.shape[:2]
             if len(data["regions"]) > 1:
                 self.add_image(
-                    "project",
+                    "Attribute",
                     image_id=data["filename"],
                     path=imagePath,
                     width=width,
@@ -109,18 +109,18 @@ class projectDataset(utils.Dataset):
                 region["shape_attributes"]["all_points_y"],
                 region["shape_attributes"]["all_points_x"])
             masks[rr, cc, index] = 1
-            if region["region_attributes"]["project"] == "AL":
+            if region["region_attributes"]["Attribute"] == "AL":
                 classIds[index] = 1
-            elif region["region_attributes"]["project"] == "CU":
+            elif region["region_attributes"]["Attribute"] == "CU":
                 classIds[index] = 2
-            elif region["region_attributes"]["project"] == "Brass":
+            elif region["region_attributes"]["Attribute"] == "Brass":
                 classIds[index] = 3
         return masks.astype(np.bool), classIds
 
     def image_reference(self, image_id):
         """Return the path of the image."""
         info = self.image_info[image_id]
-        if info["source"] == "project":
+        if info["source"] == "Attribute":
             return info["path"]
         else:
             super(self.__class__, self).image_reference(image_id)
