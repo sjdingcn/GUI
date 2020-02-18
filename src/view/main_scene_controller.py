@@ -1,24 +1,21 @@
 import collections
-import glob
 import json
 import os
-import time
-
-import sip
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QBrush, QPolygon, QPolygonF, QKeyEvent
-
 import shutil
+from pathlib import Path
 
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsView, QGraphicsScene, QGraphicsItem, \
-    QGraphicsSceneHoverEvent, QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton, QVBoxLayout, \
-    QMessageBox, QLabel, QLineEdit, QTextEdit
-# from mrcnn import model
-from prompt_toolkit.key_binding import KeyPress
-
-from src.view.main_sense import *
+from PyQt5.QtCore import Qt, QPoint
+# import sip
+from PyQt5.QtGui import QPixmap, QImage, QPen, QPolygonF
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsScene, QGraphicsItem, \
+    QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton, QMessageBox
 
 import src.model.ready as ready
-from PyQt5.QtCore import Qt, QPoint, QRectF, QSize
+from src.view.create_project_scene_controller import CreateProjectDialog
+from src.view.main_scene import *
+
+
+# from mrcnn import model
 
 
 def get_files_from_dir(path, mode):
@@ -120,10 +117,10 @@ class GUIPixmapItem(QGraphicsPixmapItem):
     def wheelEvent(self, event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
             if event.delta() == 120:
-                MainSenseController.zoom_handler(application, 'zoom_in')
+                MainSense.zoom_handler(application, 'zoom_in')
 
             elif event.delta() == -120:
-                MainSenseController.zoom_handler(application, 'zoom_out')
+                MainSense.zoom_handler(application, 'zoom_out')
 
             else:
                 pass
@@ -154,20 +151,24 @@ def json2polygons_ids(json_value, filename):
     return polygons_ids
 
 
-class MainSenseController(QMainWindow, Ui_MainWindow):
-    projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
-    project_name = 'test'
-    project_dest = os.path.join(projects_dest, project_name)
-
-    label_dest = os.path.join(project_dest, 'label')
-    auto_detect_dest = os.path.join(project_dest, 'auto_detect')
-
-    print(project_dest)
-    print(label_dest)
+class MainSense(QMainWindow, Ui_MainWindow):
+    # projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
+    # project_name = 'test'
+    # project_dict = os.path.join(projects_dest, project_name)
+    #
+    # label_dict = os.path.join(project_dict, 'label')
+    # auto_detect_dict = os.path.join(project_dict, 'auto_detect')
+    #
+    # print(project_dict)
+    # print(label_dict)
 
     def __init__(self):
-        super(MainSenseController, self).__init__()
+        super(MainSense, self).__init__()
         # self.id = []
+        self.project_dict = ''
+        self.label_dict = os.path.join(self.project_dict, 'label')
+        self.auto_detect_dict = os.path.join(self.project_dict, 'auto_detect')
+
         self.json_data = {}
         self.setupUi(self)
         try:
@@ -179,6 +180,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
             pass
 
         # Controller for menu bar
+        self.action_project_new.triggered.connect(self.project_new_handler)
         self.action_project_save.triggered.connect(self.project_save_handler)
         self.action_project_add_files.triggered.connect(self.open_file_names_dialog)
         self.action_project_remove_files.triggered.connect(self.remove_files_handler)
@@ -224,22 +226,27 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
     #         print(self.radio_button_group.buttons())
     #     print('clear')
 
+    def project_new_handler(self):
+
+        create_project_dialog = CreateProjectDialog()
+        create_project_dialog.exec()
+
     def project_save_handler(self):
         # TODO do not overwrite the json file each time, in case not every image was labeled (sometimes it may success?)
-        with open(os.path.join(self.label_dest, 'data.json'), 'w') as outfile:
+        with open(os.path.join(self.label_dict, 'data.json'), 'w') as outfile:
             json.dump(self.json_data, outfile)
         # print('test')
 
     def list_widget_images_update(self):
 
         self.list_widget_images.clear()
-        self.list_widget_images.addItems(get_files_from_dir(self.label_dest, 'images'))
+        self.list_widget_images.addItems(get_files_from_dir(self.label_dict, 'images'))
         self.list_widget_images.setCurrentRow(0)
 
     def list_widget_models_update(self):
 
         self.list_widget_models.clear()
-        self.list_widget_models.addItems(get_files_from_dir(self.auto_detect_dest, 'models'))
+        self.list_widget_models.addItems(get_files_from_dir(self.auto_detect_dict, 'models'))
         self.list_widget_models.setCurrentRow(0)
 
     def graphics_view_update(self):
@@ -249,7 +256,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         item = self.list_widget_images.currentItem()
 
         if item is not None:
-            image_name = os.path.join(self.label_dest, item.text())
+            image_name = os.path.join(self.label_dict, item.text())
             scene.clear()
             with open(image_name, 'rb') as f:
                 img = f.read()
@@ -261,7 +268,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
 
             # Read dataset information from the json file
             try:
-                self.json_data = json.load(open(os.path.join(self.label_dest, "data.json")))
+                self.json_data = json.load(open(os.path.join(self.label_dict, "data.json")))
             except FileNotFoundError:
                 pass
 
@@ -304,7 +311,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
 
                 # copy files to the project label folder
                 for file in files:
-                    shutil.copy2(file, self.label_dest)
+                    shutil.copy2(file, self.label_dict)
 
                 self.list_widget_images_update()
         elif mode == 'models':
@@ -316,7 +323,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
 
                 # copy files to the project auto_detect folder
                 for file in files:
-                    shutil.copy2(file, self.auto_detect_dest)
+                    shutil.copy2(file, self.auto_detect_dict)
                 self.list_widget_models_update()
         else:
             pass
@@ -325,14 +332,14 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
         if mode == 'images':
             for item in self.list_widget_images.selectedItems():
                 self.list_widget_images.takeItem(self.list_widget_images.row(item))
-                os.remove(os.path.join(self.label_dest, item.text()))
+                os.remove(os.path.join(self.label_dict, item.text()))
             self.list_widget_images_update()
             # self.graphics_view_update()
             self.label_page_id_update()
         elif mode == 'models':
             for item in self.list_widget_models.selectedItems():
                 self.list_widget_models.takeItem(self.list_widget_models.row(item))
-                os.remove(os.path.join(self.auto_detect_dest, item.text()))
+                os.remove(os.path.join(self.auto_detect_dict, item.text()))
             self.list_widget_models_update()
         else:
             pass
@@ -433,7 +440,7 @@ class MainSenseController(QMainWindow, Ui_MainWindow):
                 regions.append(region)
         if self.list_widget_images.currentItem():
             filename = self.list_widget_images.currentItem().text()
-            path = os.path.join(self.label_dest, filename)
+            path = os.path.join(self.label_dict, filename)
 
             size = os.stat(path).st_size
             key = filename + str(size)
@@ -475,6 +482,6 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    application = MainSenseController()
+    application = MainSense()
     application.show()
     sys.exit(app.exec_())

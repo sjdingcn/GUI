@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main_sense.ui'
+# Form implementation generated from reading ui file 'main_scene.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -205,6 +205,9 @@ class Ui_MainWindow(object):
         self.action_train_edit_configurations.setObjectName("action_train_edit_configurations")
         self.action_analyze_tensorboard = QtWidgets.QAction(MainWindow)
         self.action_analyze_tensorboard.setObjectName("action_analyze_tensorboard")
+        self.action_project_new = QtWidgets.QAction(MainWindow)
+        self.action_project_new.setObjectName("action_project_new")
+        self.menuFile.addAction(self.action_project_new)
         self.menuFile.addAction(self.action_project_load)
         self.menuFile.addAction(self.action_project_save)
         self.menuFile.addSeparator()
@@ -263,4 +266,5 @@ class Ui_MainWindow(object):
         self.action_train_train.setText(_translate("MainWindow", "Train"))
         self.action_train_edit_configurations.setText(_translate("MainWindow", "Edit Configurations"))
         self.action_analyze_tensorboard.setText(_translate("MainWindow", "Tensorboard"))
+        self.action_project_new.setText(_translate("MainWindow", "New"))
 

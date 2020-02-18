@@ -136,7 +136,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tabWidget_2Page1">
          <attribute name="title">
@@ -330,6 +330,7 @@
     <property name="title">
      <string>Project</string>
     </property>
+    <addaction name="action_project_new"/>
     <addaction name="action_project_load"/>
     <addaction name="action_project_save"/>
     <addaction name="separator"/>
@@ -420,6 +421,11 @@
   <action name="action_analyze_tensorboard">
    <property name="text">
     <string>Tensorboard</string>
+   </property>
+  </action>
+  <action name="action_project_new">
+   <property name="text">
+    <string>New</string>
    </property>
   </action>
  </widget>
