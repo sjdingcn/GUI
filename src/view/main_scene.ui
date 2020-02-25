@@ -27,234 +27,269 @@
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
-       <widget class="QGroupBox" name="groupBox_3">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="title">
-         <string>Project</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <layout class="QFormLayout" name="formLayout">
-             <property name="sizeConstraint">
-              <enum>QLayout::SetDefaultConstraint</enum>
-             </property>
-             <property name="fieldGrowthPolicy">
-              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-             </property>
-             <property name="rowWrapPolicy">
-              <enum>QFormLayout::DontWrapRows</enum>
-             </property>
-             <property name="formAlignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-             <property name="horizontalSpacing">
-              <number>6</number>
-             </property>
-             <property name="verticalSpacing">
-              <number>6</number>
-             </property>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="sdfLineEdit">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="sdfLabel">
-               <property name="text">
-                <string>Name: </string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QListWidget" name="list_widget_images">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::ExtendedSelection</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QPushButton" name="push_button_add_images">
-               <property name="text">
-                <string>Add Images</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="push_button_remove_images">
-               <property name="text">
-                <string>Remove Images</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTabWidget" name="tabWidget_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>282</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="tabWidget_2Page1">
-         <attribute name="title">
-          <string>Automatically</string>
-         </attribute>
-         <widget class="QListWidget" name="list_widget_models">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>40</y>
-            <width>151</width>
-            <height>161</height>
-           </rect>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <property name="rowWrapPolicy">
+           <enum>QFormLayout::DontWrapRows</enum>
+          </property>
+          <property name="formAlignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          </property>
+          <property name="horizontalSpacing">
+           <number>6</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>6</number>
+          </property>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="sdfLineEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="sdfLabel">
+            <property name="text">
+             <string>Name: </string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QListWidget" name="list_widget_images">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="selectionMode">
            <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
          </widget>
-         <widget class="QLabel" name="label">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>111</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Existed Model</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="push_button_add_models">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>220</y>
-            <width>151</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Add Models</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="push_button_remove_models">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>260</y>
-            <width>151</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Remove Models</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="push_button_go">
-          <property name="geometry">
-           <rect>
-            <x>180</x>
-            <y>80</y>
-            <width>89</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Go</string>
-          </property>
-         </widget>
-        </widget>
-        <widget class="QWidget" name="tabWidget_2Page2">
-         <attribute name="title">
-          <string>Maually</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="title">
-             <string>Attributes</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_6"/>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="line_edit_id">
+           <widget class="QPushButton" name="push_button_add_images">
             <property name="text">
-             <string/>
+             <string>Add Images</string>
+            </property>
+            <property name="shortcut">
+             <string>Ctrl+A</string>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QPushButton" name="push_button_add">
-              <property name="text">
-               <string>Add</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="push_button_remove">
-              <property name="text">
-               <string>Remove</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QPushButton" name="push_button_remove_images">
+            <property name="text">
+             <string>Remove Images</string>
+            </property>
+            <property name="shortcut">
+             <string>Ctrl+R</string>
+            </property>
+           </widget>
           </item>
          </layout>
-        </widget>
-       </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTabWidget" name="tabWidget_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>282</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tabWidget_2Page1">
+           <attribute name="title">
+            <string>Automatically</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Existed Model: </string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="push_button_add_models">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../../resource/add_circle_outline-24px.svg</normaloff>../../resource/add_circle_outline-24px.svg</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>18</width>
+                    <height>18</height>
+                   </size>
+                  </property>
+                  <property name="shortcut">
+                   <string>Shift+A</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="push_button_remove_models">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../../resource/remove_circle_outline-24px.svg</normaloff>../../resource/remove_circle_outline-24px.svg</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>18</width>
+                    <height>18</height>
+                   </size>
+                  </property>
+                  <property name="shortcut">
+                   <string>Shift+R</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="push_button_go">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../../resource/play_circle_outline-24px.svg</normaloff>../../resource/play_circle_outline-24px.svg</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>18</width>
+                    <height>18</height>
+                   </size>
+                  </property>
+                  <property name="shortcut">
+                   <string>Shift+R</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QListWidget" name="list_widget_models">
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::ExtendedSelection</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabWidget_2Page2">
+           <attribute name="title">
+            <string>Maually</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QGroupBox" name="groupBox_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title">
+               <string>Attributes</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_6"/>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="line_edit_id">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QPushButton" name="push_button_add">
+                <property name="text">
+                 <string>Add</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="push_button_remove">
+                <property name="text">
+                 <string>Remove</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -286,6 +321,9 @@
           <property name="text">
            <string>Previous</string>
           </property>
+          <property name="shortcut">
+           <string>Left</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -308,6 +346,9 @@
          <widget class="QPushButton" name="button_next_page">
           <property name="text">
            <string>Next</string>
+          </property>
+          <property name="shortcut">
+           <string>Right</string>
           </property>
          </widget>
         </item>
@@ -334,8 +375,8 @@
     <addaction name="action_project_load"/>
     <addaction name="action_project_save"/>
     <addaction name="separator"/>
-    <addaction name="action_project_add_files"/>
-    <addaction name="action_project_remove_files"/>
+    <addaction name="action_project_add_images"/>
+    <addaction name="action_project_remove_images"/>
    </widget>
    <widget class="QMenu" name="menuTrain">
     <property name="title">
@@ -369,63 +410,144 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_project_save">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/save-24px.svg</normaloff>../../resource/save-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
+   <property name="statusTip">
+    <string>Save the project.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="action_project_load">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/folder_open-24px.svg</normaloff>../../resource/folder_open-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Load</string>
    </property>
-  </action>
-  <action name="action_project_add_files">
-   <property name="text">
-    <string>Add files</string>
+   <property name="statusTip">
+    <string>Load an existed project.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
-  <action name="action_project_remove_files">
+  <action name="action_project_add_images">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/add-24px.svg</normaloff>../../resource/add-24px.svg</iconset>
+   </property>
    <property name="text">
-    <string>Remove file</string>
+    <string>Add Images</string>
+   </property>
+   <property name="statusTip">
+    <string>Add images.</string>
+   </property>
+  </action>
+  <action name="action_project_remove_images">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/remove-24px.svg</normaloff>../../resource/remove-24px.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Remove Image</string>
+   </property>
+   <property name="statusTip">
+    <string>Remove image.</string>
    </property>
   </action>
   <action name="action_file_zoom_in">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/zoom_in-24px.svg</normaloff>../../resource/zoom_in-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Zoom In</string>
    </property>
   </action>
   <action name="action_file_zoom_out">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/zoom_out-24px.svg</normaloff>../../resource/zoom_out-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Zoom Out</string>
    </property>
   </action>
   <action name="action_file_default_size">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/fullscreen_exit-24px.svg</normaloff>../../resource/fullscreen_exit-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Default Size</string>
    </property>
   </action>
   <action name="action_file_delete_polygon">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/delete-24px.svg</normaloff>../../resource/delete-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Delete Polygon</string>
    </property>
   </action>
   <action name="action_train_train">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/play_arrow-24px.svg</normaloff>../../resource/play_arrow-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Train</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
   </action>
   <action name="action_train_edit_configurations">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/build-24px.svg</normaloff>../../resource/build-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Edit Configurations</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
   </action>
   <action name="action_analyze_tensorboard">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/show_chart-24px.svg</normaloff>../../resource/show_chart-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>Tensorboard</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
   </action>
   <action name="action_project_new">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../resource/create_new_folder-24px.svg</normaloff>../../resource/create_new_folder-24px.svg</iconset>
+   </property>
    <property name="text">
     <string>New</string>
+   </property>
+   <property name="statusTip">
+    <string>Create a new project.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>

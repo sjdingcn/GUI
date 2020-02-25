@@ -165,7 +165,8 @@ class MainSense(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainSense, self).__init__()
         # self.id = []
-        self.project_dict = ''
+        # TODO set a default directory.
+        self.project_dict = '/home/sijie/Desktop/GUI/stock/projects'
         self.label_dict = os.path.join(self.project_dict, 'label')
         self.auto_detect_dict = os.path.join(self.project_dict, 'auto_detect')
 
@@ -182,8 +183,8 @@ class MainSense(QMainWindow, Ui_MainWindow):
         # Controller for menu bar
         self.action_project_new.triggered.connect(self.project_new_handler)
         self.action_project_save.triggered.connect(self.project_save_handler)
-        self.action_project_add_files.triggered.connect(self.open_file_names_dialog)
-        self.action_project_remove_files.triggered.connect(self.remove_files_handler)
+        self.action_project_add_images.triggered.connect(lambda: self.open_file_names_dialog('images'))
+        self.action_project_remove_images.triggered.connect(lambda: self.remove_files_handler('images'))
         self.action_file_zoom_in.triggered.connect(lambda: self.zoom_handler('zoom_in'))
         self.action_file_zoom_out.triggered.connect(lambda: self.zoom_handler('zoom_out'))
         self.action_file_default_size.triggered.connect(lambda: self.zoom_handler('default_size'))
