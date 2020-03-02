@@ -372,7 +372,7 @@
      <string>Project</string>
     </property>
     <addaction name="action_project_new"/>
-    <addaction name="action_project_load"/>
+    <addaction name="action_project_open"/>
     <addaction name="action_project_save"/>
     <addaction name="separator"/>
     <addaction name="action_project_add_images"/>
@@ -424,26 +424,22 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="action_project_load">
+  <action name="action_project_open">
    <property name="icon">
     <iconset>
      <normaloff>../../resource/folder_open-24px.svg</normaloff>../../resource/folder_open-24px.svg</iconset>
    </property>
    <property name="text">
-    <string>Load</string>
+    <string>Open</string>
    </property>
    <property name="statusTip">
-    <string>Load an existed project.</string>
+    <string>Open an existed project.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
    </property>
   </action>
   <action name="action_project_add_images">
-   <property name="icon">
-    <iconset>
-     <normaloff>../../resource/add-24px.svg</normaloff>../../resource/add-24px.svg</iconset>
-   </property>
    <property name="text">
     <string>Add Images</string>
    </property>
@@ -452,10 +448,6 @@
    </property>
   </action>
   <action name="action_project_remove_images">
-   <property name="icon">
-    <iconset>
-     <normaloff>../../resource/remove-24px.svg</normaloff>../../resource/remove-24px.svg</iconset>
-   </property>
    <property name="text">
     <string>Remove Image</string>
    </property>
@@ -538,7 +530,7 @@
   <action name="action_project_new">
    <property name="icon">
     <iconset>
-     <normaloff>../../resource/create_new_folder-24px.svg</normaloff>../../resource/create_new_folder-24px.svg</iconset>
+     <normaloff>../../resource/add-24px.svg</normaloff>../../resource/add-24px.svg</iconset>
    </property>
    <property name="text">
     <string>New</string>
