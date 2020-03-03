@@ -93,7 +93,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Image Stytle: </string>
+          <string>Image Format: </string>
          </property>
         </widget>
        </item>
