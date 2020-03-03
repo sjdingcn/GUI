@@ -21,6 +21,9 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
         file = str(QFileDialog.getExistingDirectory(self, "Select Base Directory"))
         self.line_edit_location.setText(file)
 
+    # def done(self, a0: int):
+    # TODO set parent
+
     def accept(self):
         if len(os.listdir(self.line_edit_location.text())) != 0:
             print("Directory is not empty")
@@ -41,8 +44,8 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
 
             from src.view.main_scene_controller import MainSense
 
-            application = MainSense()
-            application.project_dict = self.line_edit_location.text()
+            application = MainSense(self.line_edit_location.text())
+            application.show()
 
             Path(os.path.join(application.project_dict), 'label').mkdir(parents=True, exist_ok=True)
             Path(os.path.join(application.project_dict), 'data').mkdir(parents=True, exist_ok=True)
