@@ -491,14 +491,18 @@ class MainScene(QMainWindow, Ui_MainWindow):
         msg.exec_()
 
     def train_handler(self):
+        # TODO
         # shut after end of running
         # os.system("gnome-terminal -e 'python3 /home/sijie/Desktop/GUI/src/model/project.py train "
         #           "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco'")
         # not shut after end of running
+        # os.path.join(self.project_dir, 'data')
         os.system("gnome-terminal -e 'bash -c \"python3 /home/sijie/Desktop/GUI/src/model/project.py train "
                   "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco; exec bash\"'")
 
     def analyze_tensorboard_handler(self):
+        # TODO
+        # os.path.join(self.project_dir, 'logs')
         weights_path = '/home/sijie/Desktop/Sijie/ALCUBrass/logs/alcubrass20191018T1524/'
         # weights_path = max(glob.glob(os.path.join('/home/sijie/Desktop/GUI/stock/projects/test/logs/', '*/')), key=os.path.getmtime)
         os.system("gnome-terminal -e 'bash -c \"tensorboard --logdir " + weights_path + "; exec bash\"'")
