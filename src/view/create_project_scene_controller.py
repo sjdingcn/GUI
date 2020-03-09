@@ -1,4 +1,6 @@
 import os
+import json
+
 import threading
 import time
 from pathlib import Path
@@ -43,25 +45,30 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
                 Path(self.line_edit_location.text()).mkdir(parents=True, exist_ok=True)
 
                 from src.view.main_scene_controller import MainScene
+                model_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'stock')
 
-                application = MainScene(self.line_edit_location.text())
+                application = MainScene(self.line_edit_location.text(), model_dir)
                 application.show()
 
-                Path(os.path.join(application.project_dict), 'label').mkdir(parents=True, exist_ok=True)
-                Path(os.path.join(application.project_dict), 'data').mkdir(parents=True, exist_ok=True)
-                Path(os.path.join(application.project_dict), 'data', 'train').mkdir(parents=True, exist_ok=True)
-                Path(os.path.join(application.project_dict), 'data', 'val').mkdir(parents=True, exist_ok=True)
-                Path(os.path.join(application.project_dict), 'data', 'test').mkdir(parents=True, exist_ok=True)
-                Path(os.path.join(application.project_dict), 'logs').mkdir(parents=True, exist_ok=True)
+                Path(application.project_dir, 'label').mkdir(parents=True, exist_ok=True)
+                Path(application.project_dir, 'data').mkdir(parents=True, exist_ok=True)
+                Path(application.project_dir, 'data', 'train').mkdir(parents=True, exist_ok=True)
+                Path(application.project_dir, 'data', 'val').mkdir(parents=True, exist_ok=True)
+                Path(application.project_dir, 'data', 'test').mkdir(parents=True, exist_ok=True)
+                Path(application.project_dir, 'logs').mkdir(parents=True, exist_ok=True)
+
+                data = {}
+                with open(os.path.join(application.project_dir, 'project.json'), 'w') as outfile:
+                    json.dump(data, outfile)
                 # close the dialog.
                 self.done(1)
 
         except FileNotFoundError:
-            print("No such or directory: '/path/to/untitled/'")
+            print("No such or directory: " + self.line_edit_location.text())
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Warning)
 
-            msg.setText("No such or directory: '/path/to/untitled/'. ")
+            msg.setText("No such or directory: '" + self.line_edit_location.text() + "'")
             msg.setInformativeText("Please select an existing directory.")
             msg.setWindowTitle("Warning")
 

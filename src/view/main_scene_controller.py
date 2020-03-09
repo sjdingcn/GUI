@@ -10,7 +10,7 @@ from PyQt5.QtGui import QPixmap, QImage, QPen, QPolygonF
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsScene, QGraphicsItem, \
     QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton, QMessageBox
 
-import src.model.ready as ready
+from src.model.ready import Ready
 from src.view.create_project_scene_controller import CreateProjectDialog
 from src.view.main_scene import *
 
@@ -155,22 +155,24 @@ def json2polygons_ids(json_value, filename):
 class MainScene(QMainWindow, Ui_MainWindow):
     # projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
     # project_name = 'test'
-    # project_dict = os.path.join(projects_dest, project_name)
+    # project_dir = os.path.join(projects_dest, project_name)
     #
-    # label_dict = os.path.join(project_dict, 'label')
-    # model_dict = os.path.join(project_dict, 'auto_detect')
+    # label_dir = os.path.join(project_dir, 'label')
+    # model_dir = os.path.join(project_dir, 'auto_detect')
     #
-    # print(project_dict)
-    # print(label_dict)
+    # print(project_dir)
+    # print(label_dir)
 
-    def __init__(self, project_dict):
+    def __init__(self, project_dir, model_dir):
         super(MainScene, self).__init__()
         # self.id = []
-        self.project_dict = project_dict
+        self.project_dir = project_dir
 
-        self.label_dict = os.path.join(self.project_dict, 'label')
+        self.label_dir = os.path.join(self.project_dir, 'label')
+        print(self.project_dir)
+        print(self.label_dir)
         # TODO optimize model folder
-        self.model_dict = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'stock')
+        self.model_dir = model_dir
 
         self.json_data = {}
         self.setupUi(self)
@@ -253,20 +255,20 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
     def project_save_handler(self):
         # TODO do not overwrite the json file each time, in case not every image was labeled (sometimes it may success?)
-        with open(os.path.join(self.label_dict, 'data.json'), 'w') as outfile:
+        with open(os.path.join(self.label_dir, 'data.json'), 'w') as outfile:
             json.dump(self.json_data, outfile)
         # print('test')
 
     def list_widget_images_update(self):
 
         self.list_widget_images.clear()
-        self.list_widget_images.addItems(get_files_from_dir(self.label_dict, 'images'))
+        self.list_widget_images.addItems(get_files_from_dir(self.label_dir, 'images'))
         self.list_widget_images.setCurrentRow(0)
 
     def list_widget_models_update(self):
 
         self.list_widget_models.clear()
-        self.list_widget_models.addItems(get_files_from_dir(self.model_dict, 'models'))
+        self.list_widget_models.addItems(get_files_from_dir(self.model_dir, 'models'))
         self.list_widget_models.setCurrentRow(0)
 
     def graphics_view_update(self):
@@ -276,7 +278,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
         item = self.list_widget_images.currentItem()
 
         if item is not None:
-            image_name = os.path.join(self.label_dict, item.text())
+            image_name = os.path.join(self.label_dir, item.text())
             scene.clear()
             with open(image_name, 'rb') as f:
                 img = f.read()
@@ -288,7 +290,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
             # Read dataset information from the json file
             try:
-                self.json_data = json.load(open(os.path.join(self.label_dict, "data.json")))
+                self.json_data = json.load(open(os.path.join(self.label_dir, "data.json")))
             except FileNotFoundError:
                 pass
 
@@ -331,7 +333,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
                 # copy files to the project label folder
                 for file in files:
-                    shutil.copy2(file, self.label_dict)
+                    shutil.copy2(file, self.label_dir)
 
                 self.list_widget_images_update()
         elif mode == 'models':
@@ -343,7 +345,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
                 # copy files to the project auto_detect folder
                 for file in files:
-                    shutil.copy2(file, self.model_dict)
+                    shutil.copy2(file, self.model_dir)
                 self.list_widget_models_update()
         else:
             pass
@@ -352,14 +354,14 @@ class MainScene(QMainWindow, Ui_MainWindow):
         if mode == 'images':
             for item in self.list_widget_images.selectedItems():
                 self.list_widget_images.takeItem(self.list_widget_images.row(item))
-                os.remove(os.path.join(self.label_dict, item.text()))
+                os.remove(os.path.join(self.label_dir, item.text()))
             self.list_widget_images_update()
             # self.graphics_view_update()
             self.label_page_id_update()
         elif mode == 'models':
             for item in self.list_widget_models.selectedItems():
                 self.list_widget_models.takeItem(self.list_widget_models.row(item))
-                os.remove(os.path.join(self.model_dict, item.text()))
+                os.remove(os.path.join(self.model_dir, item.text()))
             self.list_widget_models_update()
         else:
             pass
@@ -399,10 +401,11 @@ class MainScene(QMainWindow, Ui_MainWindow):
         # self.label_page_id_update()
 
     def go_handler(self):
-        import src.model.auto_detect as auto
+        from src.model.auto_detect import Auto
         item = self.list_widget_models.currentItem()
 
-        auto.auto_detection(item.text())
+        Auto(self.project_dir, self.model_dir, item.text()).detect()
+
         # self.json_data.clear()
         self.graphics_view_update()
         print('done')
@@ -459,7 +462,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
                 regions.append(region)
         if self.list_widget_images.currentItem():
             filename = self.list_widget_images.currentItem().text()
-            path = os.path.join(self.label_dict, filename)
+            path = os.path.join(self.label_dir, filename)
 
             size = os.stat(path).st_size
             key = filename + str(size)
@@ -474,8 +477,9 @@ class MainScene(QMainWindow, Ui_MainWindow):
         print('tetsstest')
 
     def train_configurations_handler(self):
-        ready.rotate()
-        ready.ready()
+        train_config = Ready(self.project_dir)
+        train_config.image_rotate()
+        train_config.json_rotate()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
 
@@ -487,8 +491,10 @@ class MainScene(QMainWindow, Ui_MainWindow):
         msg.exec_()
 
     def train_handler(self):
+        # shut after end of running
         # os.system("gnome-terminal -e 'python3 /home/sijie/Desktop/GUI/src/model/project.py train "
         #           "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco'")
+        # not shut after end of running
         os.system("gnome-terminal -e 'bash -c \"python3 /home/sijie/Desktop/GUI/src/model/project.py train "
                   "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco; exec bash\"'")
 
@@ -501,6 +507,6 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    application = MainScene('/home/gemc/Desktop/GUItest/project')
+    application = MainScene('/home/gemc/Desktop/GUItest/project', '/home/gemc/Desktop/GUI/stock')
     application.show()
     sys.exit(app.exec_())
