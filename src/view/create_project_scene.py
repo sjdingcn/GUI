@@ -97,7 +97,7 @@ class Ui_Dialog(object):
         self.groupBox.setTitle(_translate("Dialog", "Environment: "))
         self.radioButton.setText(_translate("Dialog", "Default Environment"))
         self.radioButton_2.setText(_translate("Dialog", "Virtual Environment"))
-        self.label_2.setText(_translate("Dialog", "Image Stytle: "))
+        self.label_2.setText(_translate("Dialog", "Image Format: "))
         self.comboBox.setItemText(0, _translate("Dialog", "RGB"))
         self.comboBox.setItemText(1, _translate("Dialog", "RGB-D"))
 
