@@ -21,38 +21,53 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
         file = str(QFileDialog.getExistingDirectory(self, "Select Base Directory"))
         self.line_edit_location.setText(file)
 
-    # def done(self, a0: int):
     # TODO set parent
 
     def accept(self):
-        if len(os.listdir(self.line_edit_location.text())) != 0:
-            print("Directory is not empty")
+        try:
+            if len(os.listdir(self.line_edit_location.text())) != 0:
+                print("Directory is not empty")
+                msg = QMessageBox(self)
+                msg.setIcon(QMessageBox.Warning)
+
+                msg.setText("The directory is not empty. Please select an empty directory.")
+                # msg.setInformativeText("Confirm to continue?")
+                msg.setWindowTitle("Warning")
+
+                msg.setStandardButtons(QMessageBox.Ok)
+
+                msg.exec_()
+
+            else:
+
+                Path(self.line_edit_location.text()).mkdir(parents=True, exist_ok=True)
+
+                from src.view.main_scene_controller import MainScene
+
+                application = MainScene(self.line_edit_location.text())
+                application.show()
+
+                Path(os.path.join(application.project_dict), 'label').mkdir(parents=True, exist_ok=True)
+                Path(os.path.join(application.project_dict), 'data').mkdir(parents=True, exist_ok=True)
+                Path(os.path.join(application.project_dict), 'data', 'train').mkdir(parents=True, exist_ok=True)
+                Path(os.path.join(application.project_dict), 'data', 'val').mkdir(parents=True, exist_ok=True)
+                Path(os.path.join(application.project_dict), 'data', 'test').mkdir(parents=True, exist_ok=True)
+                Path(os.path.join(application.project_dict), 'logs').mkdir(parents=True, exist_ok=True)
+                # close the dialog.
+                self.done(1)
+
+        except FileNotFoundError:
+            print("No such or directory: '/path/to/untitled/'")
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Warning)
 
-            msg.setText("The directory is not empty. Please select an empty directory.")
-            # msg.setInformativeText("Confirm to continue?")
+            msg.setText("No such or directory: '/path/to/untitled/'. ")
+            msg.setInformativeText("Please select an existing directory.")
             msg.setWindowTitle("Warning")
 
             msg.setStandardButtons(QMessageBox.Ok)
 
             msg.exec_()
 
-        else:
 
-            Path(self.line_edit_location.text()).mkdir(parents=True, exist_ok=True)
 
-            from src.view.main_scene_controller import MainSense
-
-            application = MainSense(self.line_edit_location.text())
-            application.show()
-
-            Path(os.path.join(application.project_dict), 'label').mkdir(parents=True, exist_ok=True)
-            Path(os.path.join(application.project_dict), 'data').mkdir(parents=True, exist_ok=True)
-            Path(os.path.join(application.project_dict), 'data', 'train').mkdir(parents=True, exist_ok=True)
-            Path(os.path.join(application.project_dict), 'data', 'val').mkdir(parents=True, exist_ok=True)
-            Path(os.path.join(application.project_dict), 'data', 'test').mkdir(parents=True, exist_ok=True)
-            Path(os.path.join(application.project_dict), 'logs').mkdir(parents=True, exist_ok=True)
-
-            # close the dialog.
-            self.done(0)

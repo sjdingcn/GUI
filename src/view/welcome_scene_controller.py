@@ -10,7 +10,6 @@ from src.view.welcome_scene import Ui_Dialog
 from src.view.create_project_scene_controller import CreateProjectDialog
 
 
-
 class WelcomeDialog(QDialog, Ui_Dialog):
 
     def __init__(self):
@@ -21,13 +20,16 @@ class WelcomeDialog(QDialog, Ui_Dialog):
 
     def create_handler(self):
         create_project_dialog = CreateProjectDialog()
-        create_project_dialog.exec()
-        # close the dialog.
-        self.done(0)
+        ret = create_project_dialog.exec()
+        if ret == QDialog.Accepted:
+            self.done(1)
+        else:
+            pass
+
     def open_handler(self):
         # TODO unfinished
         file = str(QFileDialog.getExistingDirectory(self, "Open Project"))
-        self.done(0)
+        # self.done(0)
         return
 
 

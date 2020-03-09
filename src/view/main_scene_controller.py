@@ -118,10 +118,10 @@ class GUIPixmapItem(QGraphicsPixmapItem):
     def wheelEvent(self, event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
             if event.delta() == 120:
-                MainSense.zoom_handler(application, 'zoom_in')
+                MainScene.zoom_handler(application, 'zoom_in')
 
             elif event.delta() == -120:
-                MainSense.zoom_handler(application, 'zoom_out')
+                MainScene.zoom_handler(application, 'zoom_out')
 
             else:
                 pass
@@ -152,7 +152,7 @@ def json2polygons_ids(json_value, filename):
     return polygons_ids
 
 
-class MainSense(QMainWindow, Ui_MainWindow):
+class MainScene(QMainWindow, Ui_MainWindow):
     # projects_dest = '/home/sijie/Desktop/GUI/stock/projects'
     # project_name = 'test'
     # project_dict = os.path.join(projects_dest, project_name)
@@ -164,7 +164,7 @@ class MainSense(QMainWindow, Ui_MainWindow):
     # print(label_dict)
 
     def __init__(self, project_dict):
-        super(MainSense, self).__init__()
+        super(MainScene, self).__init__()
         # self.id = []
         self.project_dict = project_dict
 
@@ -501,6 +501,6 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    application = MainSense('/home/sijie/Desktop/GUI/stock/projects')
+    application = MainScene('/home/gemc/Desktop/GUItest/project')
     application.show()
     sys.exit(app.exec_())
