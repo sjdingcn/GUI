@@ -1,5 +1,6 @@
 import collections
 import json
+# TODO: replace os with pathlib
 import os
 import shutil
 from pathlib import Path
@@ -14,8 +15,8 @@ from src.model.ready import Ready
 from src.view.create_project_scene_controller import CreateProjectDialog
 from src.view.main_scene import *
 
-
 # from mrcnn import model
+from src.view.utils import gui_root
 
 
 def get_files_from_dir(path, mode):
@@ -497,20 +498,23 @@ class MainScene(QMainWindow, Ui_MainWindow):
         #           "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco'")
         # not shut after end of running
         # os.path.join(self.project_dir, 'data')
-        os.system("gnome-terminal -e 'bash -c \"python3 /home/sijie/Desktop/GUI/src/model/project.py train "
-                  "--dataset=/home/sijie/Desktop/GUI/stock/projects/test/data --weights=coco; exec bash\"'")
+        os.system("gnome-terminal -e 'bash -c \"python3 " + str(gui_root() / 'src' / 'model' / 'project.py') + " train "
+                                                                                                               "--dataset=" + str(
+            self.project_dir / 'data') + " --weights=coco; exec bash\"'")
 
     def analyze_tensorboard_handler(self):
         # TODO
         # os.path.join(self.project_dir, 'logs')
         weights_path = '/home/sijie/Desktop/Sijie/ALCUBrass/logs/alcubrass20191018T1524/'
         # weights_path = max(glob.glob(os.path.join('/home/sijie/Desktop/GUI/stock/projects/test/logs/', '*/')), key=os.path.getmtime)
-        os.system("gnome-terminal -e 'bash -c \"tensorboard --logdir " + weights_path + "; exec bash\"'")
+        os.system(
+            "gnome-terminal -e 'bash -c \"tensorboard --logdir " + str(self.project_dir / 'logs') + "; exec bash\"'")
+
 
 if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    application = MainScene('/home/gemc/Desktop/GUItest/project', '/home/gemc/Desktop/GUI/stock')
+    application = MainScene(Path('/home/gemc/Desktop/GUItest/project'), Path('/home/gemc/Desktop/GUI/stock'))
     application.show()
     sys.exit(app.exec_())

@@ -1,15 +1,11 @@
-import os
-import threading
-import time
-from os import path
 from pathlib import Path
-
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
-from src.view.main_scene_controller import MainScene
-from src.view.welcome_scene import Ui_Dialog
 from src.view.create_project_scene_controller import CreateProjectDialog
+from src.view.main_scene_controller import MainScene
+from src.view.utils import gui_root
+from src.view.welcome_scene import Ui_Dialog
 
 
 class WelcomeDialog(QDialog, Ui_Dialog):
@@ -30,13 +26,11 @@ class WelcomeDialog(QDialog, Ui_Dialog):
 
     def open_handler(self):
         # TODO unfinished
-        file = str(QFileDialog.getExistingDirectory(self, "Open Project"))
+        file = QFileDialog.getExistingDirectory(self, "Open Project")
         print(file)
         if file:
-            if path.exists(os.path.join(file, 'project.json')):
-                new_main = MainScene(file,
-                                     model_dir=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-                                                            'stock'))
+            if Path(file, 'project.json').is_file():
+                new_main = MainScene(Path(file), model_dir=gui_root() / 'stock')
                 new_main.show()
                 self.done(1)
             else:
@@ -50,7 +44,6 @@ class WelcomeDialog(QDialog, Ui_Dialog):
                 msg.setStandardButtons(QMessageBox.Ok)
 
                 msg.exec_()
-
 
 
 if __name__ == "__main__":
