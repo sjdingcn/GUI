@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
@@ -50,6 +51,15 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    application = WelcomeDialog()
-    application.show()
+    try:
+        path = json.load(open(Path(gui_root() / 'stock' / 'gui.json')))
+        if Path(path, 'project.json').is_file():
+            main = MainScene(path, model_dir=gui_root() / 'stock')
+            main.show()
+        else:
+            application = WelcomeDialog()
+            application.show()
+    except FileNotFoundError:
+        application = WelcomeDialog()
+        application.show()
     sys.exit(app.exec_())

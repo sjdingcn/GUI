@@ -166,6 +166,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
     def __init__(self, project_dir, model_dir):
         super(MainScene, self).__init__()
+
         # self.id = []
         self.project_dir = project_dir
 
@@ -178,6 +179,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.json_data = {}
         self.setupUi(self)
         try:
+            self.readSettings()
             self.list_widget_images_update()
             self.list_widget_models_update()
             self.label_page_id_update()
@@ -234,16 +236,20 @@ class MainScene(QMainWindow, Ui_MainWindow):
     #     print('clear')
 
     def closeEvent(self, event):
-        settings = QSettings("MyCompany", "MyApp")
+        settings = QSettings("HSG", "GUI")
         settings.setValue("geometry", self.saveGeometry())
         settings.setValue("windowState", self.saveState())
+        # TODO in welcome try to open the address in json, if fail then pop up the welcome sense
+        with open(Path(gui_root() / 'stock', 'gui.json'), 'w') as outfile:
+            json.dump(str(self.project_dir), outfile)
         QMainWindow.closeEvent(self, event)
+        print('close')
 
     # TODO unfinished
     def readSettings(self):
-        settings = QSettings("MyCompany", "MyApp")
-        self.restoreGeometry(settings.value("myWidget/geometry"))
-        self.restoreState(settings.value("myWidget/windowState"))
+        settings = QSettings("HSG", "GUI")
+        self.restoreGeometry(settings.value("geometry"))
+        self.restoreState(settings.value("windowState"))
 
     def project_new_handler(self):
 

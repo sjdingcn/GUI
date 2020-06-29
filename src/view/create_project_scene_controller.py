@@ -78,6 +78,3 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
             msg.setStandardButtons(QMessageBox.Ok)
 
             msg.exec_()
-
-
-
