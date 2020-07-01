@@ -411,11 +411,11 @@ class MainScene(QMainWindow, Ui_MainWindow):
     def go_handler(self):
         try:
             self.statusbar.showMessage('Please wait, processing...')
-            from src.model.auto_detect import Auto
+
+            from src.model.auto_detect import detect
             item = self.list_widget_models.currentItem()
 
-            Auto(self.project_dir, self.model_dir, item.text()).detect()
-
+            detect(self.project_dir, self.model_dir, item.text())
             # self.json_data.clear()
             self.graphics_view_update()
             # self.statusbar.clearMessage()
