@@ -50,6 +50,7 @@ class projectConfig(Config):
     # Adjust down if you use a smaller GPU.
     IMAGES_PER_GPU = 3
 
+    # TODO
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1 + 1 + 1  # Background + AL + CU + Brass
 
@@ -70,7 +71,7 @@ class projectConfig(Config):
 ############################################################
 
 class projectDataset(utils.Dataset):
-
+    # TODO
     def load_project(self, datasetDir, subset):
         # Setup classes
         self.add_class("Attribute", 1, "AL")
@@ -109,6 +110,7 @@ class projectDataset(utils.Dataset):
                 region["shape_attributes"]["all_points_y"],
                 region["shape_attributes"]["all_points_x"])
             masks[rr, cc, index] = 1
+            # TODO
             if region["region_attributes"]["Attribute"] == "AL":
                 classIds[index] = 1
             elif region["region_attributes"]["Attribute"] == "CU":
@@ -140,7 +142,7 @@ def train(model):
 
     # Flip the image 50% of time
     augmentation = imgaug.augmenters.Fliplr(0.5)
-
+    # TODO
     # Training - Stage 1
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
@@ -166,77 +168,6 @@ def train(model):
                 layers='all',
                 augmentation=augmentation)
 
-
-def color_splash(image, mask):
-    """Apply color splash effect.
-    image: RGB image [height, width, 3]
-    mask: instance segmentation mask [height, width, instance count]
-
-    Returns result image.
-    """
-    # Make a grayscale copy of the image. The grayscale copy still
-    # has 3 RGB channels, though.
-    gray = skimage.color.gray2rgb(skimage.color.rgb2gray(image)) * 255
-    # Copy color pixels from the original color image where mask is set
-    if mask.shape[-1] > 0:
-        # We're treating all instances as one, so collapse the mask into one layer
-        mask = (np.sum(mask, -1, keepdims=True) >= 1)
-        splash = np.where(mask, image, gray).astype(np.uint8)
-    else:
-        splash = gray.astype(np.uint8)
-    return splash
-
-
-def detect_and_color_splash(model, image_path=None, video_path=None):
-    assert image_path or video_path
-
-    # Image or video?
-    if image_path:
-        # Run model detection and generate the color splash effect
-        print("Running on {}".format(args.image))
-        # Read image
-        image = skimage.io.imread(args.image)
-        # Detect objects
-        r = model.detect([image], verbose=1)[0]
-        # Color splash
-        splash = color_splash(image, r['masks'])
-        # Save output
-        file_name = "splash_{:%Y%m%dT%H%M%S}.png".format(datetime.datetime.now())
-        skimage.io.imsave(file_name, splash)
-    elif video_path:
-        import cv2
-        # Video capture
-        vcapture = cv2.VideoCapture(video_path)
-        width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(vcapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fps = vcapture.get(cv2.CAP_PROP_FPS)
-
-        # Define codec and create video writer
-        file_name = "splash_{:%Y%m%dT%H%M%S}.avi".format(datetime.datetime.now())
-        vwriter = cv2.VideoWriter(file_name,
-                                  cv2.VideoWriter_fourcc(*'MJPG'),
-                                  fps, (width, height))
-
-        count = 0
-        success = True
-        while success:
-            print("frame: ", count)
-            # Read next image
-            success, image = vcapture.read()
-            if success:
-                # OpenCV returns images as BGR, convert to RGB
-                image = image[..., ::-1]
-                # Detect objects
-                r = model.detect([image], verbose=0)[0]
-                # Color splash
-                splash = color_splash(image, r['masks'])
-                # RGB -> BGR to save image to video
-                splash = splash[..., ::-1]
-                # Add image to video writer
-                vwriter.write(splash)
-                count += 1
-        vwriter.release()
-    print("Saved to ", file_name)
 
 
 ############################################################
@@ -338,9 +269,9 @@ if __name__ == '__main__':
     # Train or evaluate
     if args.command == "train":
         train(model)
-    elif args.command == "splash":
-        detect_and_color_splash(model, image_path=args.image,
-                                video_path=args.video)
+    # elif args.command == "splash":
+    #     detect_and_color_splash(model, image_path=args.image,
+    #                             video_path=args.video)
     else:
         print("'{}' is not recognized. "
               "Use 'train' or 'splash'".format(args.command))

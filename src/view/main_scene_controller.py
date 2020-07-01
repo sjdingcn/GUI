@@ -217,7 +217,14 @@ class MainScene(QMainWindow, Ui_MainWindow):
     #         button.setChecked(False)
     #         print(self.radio_button_group.buttons())
     #     print('clear')
-
+    # def dragMoveEvent(self, event):
+    #     print('test1')
+    #     # self.graphics_view.setDragMode(QGraphicsView.ScrollHandDrag)
+    # def dragEnterEvent(self, event):
+    #     print('test2')
+    # def dragLeaveEvent(self, event):
+    #     print('test3')
+    #
     def closeEvent(self, event):
         settings = QSettings("HSG", "GUI")
         settings.setValue("geometry", self.saveGeometry())
