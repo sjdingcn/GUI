@@ -268,6 +268,9 @@ if __name__ == '__main__':
     parser.add_argument('--video', required=False,
                         metavar="path or URL to video",
                         help='Video to apply the color splash effect on')
+    parser.add_argument('--format', required=False,
+                        metavar="RGB",
+                        help='RGB or RGB-D')
     args = parser.parse_args()
 
     # Validate arguments

@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt, QPoint, QSettings
 # import sip
 from PyQt5.QtGui import QPixmap, QImage, QPen, QPolygonF
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsScene, QGraphicsItem, \
-    QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton, QMessageBox
+    QGraphicsPolygonItem, QGraphicsPixmapItem, QButtonGroup, QRadioButton, QMessageBox, QGraphicsView
 
 from src.model.ready import Ready
 from src.view.create_project_scene_controller import CreateProjectDialog
@@ -46,14 +46,6 @@ class GUIPolygonItem(QGraphicsPolygonItem):
         if event.key() == Qt.Key_D:
             self.scene().removeItem(self)
             print('delete')
-
-    def mousePressEvent(self, event):
-        print(self.id)
-        # TODO 'application' need to be optimized
-        for button in application.radio_button_group.buttons():
-            if self.id == button.text():
-                button.setChecked(True)
-                print('test')
 
     # TODO need to be optimized
     # def dragLeaveEvent(self, event):
@@ -115,18 +107,6 @@ class GUIPixmapItem(QGraphicsPixmapItem):
         painter.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
         painter.drawConvexPolygon(QPolygonF(self.points))
 
-    # TODO optimize the code: application
-    def wheelEvent(self, event):
-        if event.modifiers() == QtCore.Qt.ControlModifier:
-            if event.delta() == 120:
-                MainScene.zoom_handler(application, 'zoom_in')
-
-            elif event.delta() == -120:
-                MainScene.zoom_handler(application, 'zoom_out')
-
-            else:
-                pass
-
 
 def json2polygons_ids(json_value, filename):
     # Load images and add them to the dataset
@@ -178,6 +158,8 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
         self.json_data = {}
         self.setupUi(self)
+        self.graphics_view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        # self.graphics_view.setDragMode(QGraphicsView.ScrollHandDrag)
         try:
             self.readSettings()
             self.list_widget_images_update()
@@ -216,6 +198,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.button_previous_page.clicked.connect(lambda: self.page_turning_handler('previous_page'))
         self.button_next_page.clicked.connect(lambda: self.page_turning_handler('next_page'))
         if self.graphics_view.scene():
+            self.graphics_view.scene().selectionChanged.connect(self.polygon_id2radio_checked)
             self.graphics_view.scene().changed.connect(self.polygons_ids2json)
 
         # controller for manually tab
@@ -386,14 +369,25 @@ class MainScene(QMainWindow, Ui_MainWindow):
         else:
             pass
 
+    def wheelEvent(self, event):
+        if event.modifiers() == QtCore.Qt.ControlModifier:
+            if event.angleDelta().y() == 120:
+                self.zoom_handler('zoom_in')
+
+            elif event.angleDelta().y() == -120:
+                self.zoom_handler('zoom_out')
+
+            else:
+                pass
+
     def zoom_handler(self, mode):
         # TODO default size
         if mode == 'zoom_in':
             self.graphics_view.scale(1.1, 1.1)
         elif mode == 'zoom_out':
             self.graphics_view.scale(1 / 1.1, 1 / 1.1)
-        # elif mode == 'default_size':
-        #     self.graphics_view.scale(1 / 1.1, 1 / 1.1)
+        elif mode == 'default_size':
+            self.graphics_view.resetTransform()
         else:
             pass
 
@@ -436,6 +430,13 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.radio_button_group.checkedButton().deleteLater()
         self.radio_button_group.removeButton(self.radio_button_group.checkedButton())
         # self.id.remove(self.radio_button_group.checkedButton().text())
+
+    def polygon_id2radio_checked(self):
+        polygon_id = self.graphics_view.scene().selectedItems()[0].id
+        for button in self.radio_button_group.buttons():
+            if polygon_id == button.text():
+                button.setChecked(True)
+                print('test')
 
     def polygons_ids2json(self):
         # self.graphics_view.scene().update()
@@ -514,7 +515,8 @@ class MainScene(QMainWindow, Ui_MainWindow):
         weights_path = '/home/sijie/Desktop/Sijie/ALCUBrass/logs/alcubrass20191018T1524/'
         # weights_path = max(glob.glob(os.path.join('/home/sijie/Desktop/GUI/stock/projects/test/logs/', '*/')), key=os.path.getmtime)
         os.system(
-            "gnome-terminal -e 'bash -c \"tensorboard --logdir " + str(self.project_dir / 'logs') + "; exec bash\"'")
+            "gnome-terminal -e 'bash -c \"tensorboard --logdir " + str(
+                Path(self.project_dir, 'logs')) + "; exec bash\"'")
 
 
 if __name__ == "__main__":
