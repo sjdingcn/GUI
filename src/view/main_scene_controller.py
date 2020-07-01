@@ -402,14 +402,19 @@ class MainScene(QMainWindow, Ui_MainWindow):
         # self.label_page_id_update()
 
     def go_handler(self):
-        from src.model.auto_detect import Auto
-        item = self.list_widget_models.currentItem()
+        try:
+            self.statusbar.showMessage('Please wait, processing...')
+            from src.model.auto_detect import Auto
+            item = self.list_widget_models.currentItem()
 
-        Auto(self.project_dir, self.model_dir, item.text()).detect()
+            Auto(self.project_dir, self.model_dir, item.text()).detect()
 
-        # self.json_data.clear()
-        self.graphics_view_update()
-        print('done')
+            # self.json_data.clear()
+            self.graphics_view_update()
+            # self.statusbar.clearMessage()
+            self.statusbar.showMessage('Done')
+        except:
+            self.statusBar.showMessage('ERROR')
 
     def delete_polygon_handler(self):
         items = self.graphics_view.scene().selectedItems()
