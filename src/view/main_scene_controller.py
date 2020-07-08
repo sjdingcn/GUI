@@ -447,15 +447,19 @@ class MainScene(QMainWindow, Ui_MainWindow):
     def polygon_id2radio_checked(self):
         # print('selection changed')
         self.clear_all_check()
-        polygon_id = self.graphics_scene.selectedItems()[0].id
-        for button in self.radio_button_group.buttons():
-            if polygon_id == button.text():
-                button.setChecked(True)
+        try:
+            polygon_id = self.graphics_scene.selectedItems()[0].id
+            for button in self.radio_button_group.buttons():
+                if polygon_id == button.text():
+                    button.setChecked(True)
+        except IndexError:
+            pass
+
                 # print('test')
 
     def polygons_ids2json(self):
         # self.graphics_view.scene().update()
-        print('polygons_ids2json')
+        # print('polygons_ids2json')
 
         regions = []
         for item in self.graphics_scene.items():
