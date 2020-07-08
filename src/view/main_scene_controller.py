@@ -536,6 +536,6 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    application = MainScene(Path('/home/gemc/Desktop/GUItest/project'), Path('/home/gemc/Desktop/GUI/stock'))
+    application = MainScene(Path('/home/sijie/Desktop/test_project'), Path('/home/sijie/Desktop/GUI/stock'))
     application.show()
     sys.exit(app.exec_())

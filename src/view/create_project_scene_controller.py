@@ -23,7 +23,6 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
         try:
             # len(os.listdir(self.line_edit_location.text())) != 0:
             if any(True for _ in Path(self.line_edit_location.text()).iterdir()):
-
                 print("Directory is not empty")
                 msg = QMessageBox(self)
                 msg.setIcon(QMessageBox.Warning)
@@ -36,25 +35,23 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
                 msg.exec_()
 
             else:
-
-                Path(self.line_edit_location.text()).mkdir(parents=True, exist_ok=True)
-
-                from src.view.main_scene_controller import MainScene
+                project_dir = Path(self.line_edit_location.text())
+                project_dir.mkdir(parents=True, exist_ok=True)
                 model_dir = gui_root() / 'stock'
 
-                application = MainScene(Path(self.line_edit_location.text()), model_dir)
-                application.show()
-
-                Path(application.project_dir, 'label').mkdir(parents=True, exist_ok=True)
-                Path(application.project_dir, 'data').mkdir(parents=True, exist_ok=True)
-                Path(application.project_dir, 'data', 'train').mkdir(parents=True, exist_ok=True)
-                Path(application.project_dir, 'data', 'val').mkdir(parents=True, exist_ok=True)
-                Path(application.project_dir, 'data', 'test').mkdir(parents=True, exist_ok=True)
-                Path(application.project_dir, 'logs').mkdir(parents=True, exist_ok=True)
+                Path(project_dir, 'label').mkdir(parents=True, exist_ok=True)
+                Path(project_dir, 'data').mkdir(parents=True, exist_ok=True)
+                Path(project_dir, 'data', 'train').mkdir(parents=True, exist_ok=True)
+                Path(project_dir, 'data', 'val').mkdir(parents=True, exist_ok=True)
+                Path(project_dir, 'data', 'test').mkdir(parents=True, exist_ok=True)
+                Path(project_dir, 'logs').mkdir(parents=True, exist_ok=True)
 
                 data = {}
-                with open(Path(application.project_dir, 'project.json'), 'w') as outfile:
+                with open(Path(project_dir, 'project.json'), 'w') as outfile:
                     json.dump(data, outfile)
+                from src.view.main_scene_controller import MainScene
+                application = MainScene(project_dir, model_dir)
+                application.show()
                 # close the dialog.
                 self.done(1)
 
