@@ -39,7 +39,7 @@ class GUIPolygonItem(QGraphicsPolygonItem):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_D:
             self.scene().removeItem(self)
-            print('delete')
+            # print('delete')
 
 
 class GUIPixmapItem(QGraphicsPixmapItem):
@@ -62,7 +62,7 @@ class GUIPixmapItem(QGraphicsPixmapItem):
             if event.button() == Qt.LeftButton:
                 self.points.append(event.scenePos())
                 self.update()
-                print(event.scenePos().x())
+                # print(event.scenePos().x())
             elif event.button() == Qt.RightButton:
 
                 polygon_item = GUIPolygonItem(QPolygonF(self.points), self)
@@ -82,7 +82,7 @@ class GUIPixmapItem(QGraphicsPixmapItem):
             if len(self.points) > 1:
                 self.points.pop()
             self.points.append(event.scenePos())
-            print(event.scenePos())
+            # print(event.scenePos())
             self.update()
 
     def paint(self, painter, option, widget):
@@ -132,14 +132,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.graphics_view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         # self.graphics_view.setDragMode(QGraphicsView.ScrollHandDrag)
-        try:
-            self.readSettings()
-            self.list_widget_images_update()
-            self.list_widget_models_update()
-            self.label_page_id_update()
-            self.graphics_view_update()
-        except:
-            pass
 
         # Controller for menu bar
         self.action_project_new.triggered.connect(self.project_new_handler)
@@ -172,9 +164,10 @@ class MainScene(QMainWindow, Ui_MainWindow):
         # Controller for graphic view
         self.button_previous_page.clicked.connect(lambda: self.page_turning_handler('previous_page'))
         self.button_next_page.clicked.connect(lambda: self.page_turning_handler('next_page'))
-        if self.graphics_view.scene():
-            self.graphics_view.scene().selectionChanged.connect(self.polygon_id2radio_checked)
-            self.graphics_view.scene().changed.connect(self.polygons_ids2json)
+        self.graphics_scene = QGraphicsScene(self.graphics_view)
+        if self.graphics_scene:
+            self.graphics_scene.selectionChanged.connect(self.polygon_id2radio_checked)
+            self.graphics_scene.changed.connect(self.polygons_ids2json)
 
         # controller for manually tab
         self.radio_button_group = QButtonGroup(self.groupBox_2)
@@ -183,7 +176,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.push_button_remove.clicked.connect(self.remove_attribute_id)
         # self.radio_button_group.buttonClicked.connect(self.id_changed_handler)
         self.radio_button_group.buttonClicked[QAbstractButton].connect(lambda i: self.id_changed_handler(i))
-        print(self.radio_button_group.buttons())
+        # print(self.radio_button_group.buttons())
 
         for attribute in json.load(open(Path(self.project_dir, "project.json"))):
             print(attribute)
@@ -194,11 +187,20 @@ class MainScene(QMainWindow, Ui_MainWindow):
         for button in self.radio_button_group.buttons():
             self.verticalLayout_6.addWidget(button)
 
+        try:
+            self.readSettings()
+            self.list_widget_images_update()
+            self.list_widget_models_update()
+            self.label_page_id_update()
+            self.graphics_view_update()
+        except:
+            pass
+
     def clear_all_check(self):
         for button in self.radio_button_group.buttons():
             button.setChecked(False)
-            print(self.radio_button_group.buttons())
-        print('clear')
+            # print(self.radio_button_group.buttons())
+        # print('clear')
 
     def closeEvent(self, event):
         self.project_save_handler()
@@ -208,7 +210,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
         with open(Path(gui_root() / 'stock', 'gui.json'), 'w') as outfile:
             json.dump(str(self.project_dir), outfile)
         QMainWindow.closeEvent(self, event)
-        print('close')
+        # print('close')
 
     def readSettings(self):
         settings = QSettings("HSG", "GUI")
@@ -262,19 +264,17 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
     def graphics_view_update(self):
 
-        scene = QGraphicsScene(self.graphics_view)
-
         item = self.list_widget_images.currentItem()
 
         if item is not None:
             image_name = Path(self.label_dir, item.text())
-            scene.clear()
+            self.graphics_scene.clear()
             with open(image_name, 'rb') as f:
                 img = f.read()
             image = QImage.fromData(img)
             pix_map = QPixmap.fromImage(image)
             pixmap_item = GUIPixmapItem(pix_map)
-            scene.addItem(pixmap_item)
+            self.graphics_scene.addItem(pixmap_item)
 
             # Read dataset information from the json file
             try:
@@ -294,11 +294,11 @@ class MainScene(QMainWindow, Ui_MainWindow):
                                       | QGraphicsItem.ItemIsFocusable)
                 polygon_item.id = polygon_id.id
 
-            print('polygons')
+            # print('polygons')
         else:
-            scene.clear()
+            self.graphics_scene.clear()
 
-        self.graphics_view.setScene(scene)
+        self.graphics_view.setScene(self.graphics_scene)
 
         self.graphics_view.show()
 
@@ -340,7 +340,16 @@ class MainScene(QMainWindow, Ui_MainWindow):
         if mode == 'images':
             for item in self.list_widget_images.selectedItems():
                 self.list_widget_images.takeItem(self.list_widget_images.row(item))
+                try:
+                    path = Path(self.label_dir, item.text())
+                    size = os.stat(path).st_size
+                    key = item.text() + str(size)
+                    del self.json_data[key]
+                    # print('delete')
+                except KeyError:
+                    pass
                 os.remove(Path(self.label_dir, item.text()))
+            self.project_save_handler()
             self.list_widget_images_update()
             self.label_page_id_update()
         elif mode == 'models':
@@ -407,9 +416,9 @@ class MainScene(QMainWindow, Ui_MainWindow):
             self.statusBar.showMessage('ERROR')
 
     def delete_polygon_handler(self):
-        items = self.graphics_view.scene().selectedItems()
+        items = self.graphics_scene.selectedItems()
         for item in items:
-            self.graphics_view.scene().removeItem(item)
+            self.graphics_scene.removeItem(item)
 
     def add_attribute_id(self):
 
@@ -436,17 +445,20 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.project_save_handler()
 
     def polygon_id2radio_checked(self):
+        # print('selection changed')
         self.clear_all_check()
-        polygon_id = self.graphics_view.scene().selectedItems()[0].id
+        polygon_id = self.graphics_scene.selectedItems()[0].id
         for button in self.radio_button_group.buttons():
             if polygon_id == button.text():
                 button.setChecked(True)
-                print('test')
+                # print('test')
 
     def polygons_ids2json(self):
         # self.graphics_view.scene().update()
+        print('polygons_ids2json')
+
         regions = []
-        for item in self.graphics_view.scene().items():
+        for item in self.graphics_scene.items():
             if isinstance(item, GUIPolygonItem):
                 # print(item.pos())
                 ##########################
@@ -473,6 +485,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
                           "region_attributes": {"Attribute": item.id}}
                 # print(item.id)
                 regions.append(region)
+        # print(self.list_widget_images.currentItem())
         if self.list_widget_images.currentItem():
             filename = self.list_widget_images.currentItem().text()
             path = Path(self.label_dir, filename)
@@ -491,10 +504,10 @@ class MainScene(QMainWindow, Ui_MainWindow):
                 continue
             button.setChecked(False)
 
-        if self.graphics_view.scene().selectedItems() and self.radio_button_group.checkedButton():
-            self.graphics_view.scene().selectedItems()[0].id = self.radio_button_group.checkedButton().text()
+        if self.graphics_scene.selectedItems() and self.radio_button_group.checkedButton():
+            self.graphics_scene.selectedItems()[0].id = self.radio_button_group.checkedButton().text()
         self.polygons_ids2json()
-        print('tetsstest')
+        # print('tetsstest')
 
     def train_configurations_handler(self):
 
@@ -519,7 +532,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
         attributes = [x.text() for x in self.radio_button_group.buttons()]
 
-        print(','.join(map(str, attributes)))
+        # print(','.join(map(str, attributes)))
         os.system("gnome-terminal -e 'bash -c \"python3 " + str(Path(self.project_dir, 'train_config.py'))
                   + " --dataset=" + str(Path(self.project_dir, 'data')) + " --logs="
                   + str(Path(self.project_dir, 'logs')) + " --attributes=" + ','.join(
