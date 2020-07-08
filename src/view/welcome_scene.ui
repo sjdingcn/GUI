@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>953</width>
-    <height>663</height>
+    <width>812</width>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,16 +17,6 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QListWidget" name="listWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLabel" name="label">
@@ -34,7 +24,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../resource/quill-drawing-a-line.svg</pixmap>
+          <pixmap>../../icons/quill-drawing-a-line.svg</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -46,8 +36,8 @@
          <widget class="QWidget" name="verticalLayoutWidget_2">
           <property name="geometry">
            <rect>
-            <x>250</x>
-            <y>30</y>
+            <x>320</x>
+            <y>20</y>
             <width>161</width>
             <height>171</height>
            </rect>
@@ -60,7 +50,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>../../resource/add-24px.svg</normaloff>../../resource/add-24px.svg</iconset>
+               <normaloff>../../icons/add-24px.svg</normaloff>../../icons/add-24px.svg</iconset>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -74,7 +64,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>../../resource/folder_open-24px.svg</normaloff>../../resource/folder_open-24px.svg</iconset>
+               <normaloff>../../icons/folder_open-24px.svg</normaloff>../../icons/folder_open-24px.svg</iconset>
              </property>
              <property name="default">
               <bool>false</bool>

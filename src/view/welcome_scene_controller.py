@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
@@ -26,7 +27,6 @@ class WelcomeDialog(QDialog, Ui_Dialog):
             pass
 
     def open_handler(self):
-        # TODO unfinished
         file = QFileDialog.getExistingDirectory(self, "Open Project")
         print(file)
         if file:

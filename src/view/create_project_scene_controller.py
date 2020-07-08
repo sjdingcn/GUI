@@ -1,12 +1,7 @@
-import os
 import json
-
-import threading
-import time
 from pathlib import Path
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from src.view.create_project_scene import Ui_Dialog
 from src.view.utils import gui_root
@@ -24,8 +19,6 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
         file = str(QFileDialog.getExistingDirectory(self, "Select Base Directory"))
         self.line_edit_location.setText(file)
 
-    # TODO set parent
-
     def accept(self):
         try:
             # len(os.listdir(self.line_edit_location.text())) != 0:
@@ -36,7 +29,6 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
                 msg.setIcon(QMessageBox.Warning)
 
                 msg.setText("The directory is not empty. Please select an empty directory.")
-                # msg.setInformativeText("Confirm to continue?")
                 msg.setWindowTitle("Warning")
 
                 msg.setStandardButtons(QMessageBox.Ok)

@@ -9,29 +9,25 @@ Written by Waleed Abdulla
 
 """
 
-import os
-import sys
 import json
-import datetime
+import os
+
+import imgaug
 import numpy as np
 import skimage.draw
-import imgaug
-import colorsys
-
+from mrcnn import model as modellib, utils
 # Root directory of the project
 # ROOT_DIR = os.path.abspath("")
-ROOT_DIR = '/home/sijie/Desktop/GUI/stock/projects/test'
+# ROOT_DIR = '/home/sijie/Desktop/GUI/stock/projects/test'
 # Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
+# sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn.config import Config
-from mrcnn import model as modellib, utils
 
 # Path to trained weights file
-COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
+from src.view.utils import gui_root
 
-# Directory to save logs and model checkpoints, if not provided
-# through the command line argument --logs
-DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
+WEIGHT = 'coco'
+FORMAT = 'RGB'
 
 
 ############################################################
@@ -71,12 +67,19 @@ class projectConfig(Config):
 ############################################################
 
 class projectDataset(utils.Dataset):
+    def __init__(self, attributes):
+
+        super().__init__()
+        self.attributes = attributes
+
     # TODO
     def load_project(self, datasetDir, subset):
         # Setup classes
-        self.add_class("Attribute", 1, "AL")
-        self.add_class("Attribute", 2, "CU")
-        self.add_class("Attribute", 3, "Brass")
+        for attribute in self.attributes:
+            i = 1
+            self.add_class("Attribute", i, attribute)
+            i += 1
+
         # Create dataset path
         # assert subset in ["train", "val", "test"]
         datasetDir = os.path.join(datasetDir, subset)
@@ -111,12 +114,11 @@ class projectDataset(utils.Dataset):
                 region["shape_attributes"]["all_points_x"])
             masks[rr, cc, index] = 1
             # TODO
-            if region["region_attributes"]["Attribute"] == "AL":
-                classIds[index] = 1
-            elif region["region_attributes"]["Attribute"] == "CU":
-                classIds[index] = 2
-            elif region["region_attributes"]["Attribute"] == "Brass":
-                classIds[index] = 3
+            for i, attribute in enumerate(self.attributes):
+
+                if region["region_attributes"]["Attribute"] == attribute:
+                    classIds[index] = i
+
         return masks.astype(np.bool), classIds
 
     def image_reference(self, image_id):
@@ -131,12 +133,12 @@ class projectDataset(utils.Dataset):
 def train(model):
     """Train the model."""
     # Training dataset.
-    dataset_train = projectDataset()
+    dataset_train = projectDataset(list(args.attributes.split(",")))
     dataset_train.load_project(args.dataset, "train")
     dataset_train.prepare()
 
     # Validation dataset
-    dataset_val = projectDataset()
+    dataset_val = projectDataset(list(args.attributes.split(",")))
     dataset_val.load_project(args.dataset, "val")
     dataset_val.prepare()
 
@@ -169,7 +171,6 @@ def train(model):
                 augmentation=augmentation)
 
 
-
 ############################################################
 #  Training
 ############################################################
@@ -178,44 +179,57 @@ if __name__ == '__main__':
     import argparse
 
     # Parse command line arguments
+
     parser = argparse.ArgumentParser(
         description='Train Mask R-CNN to detect project.')
-    parser.add_argument('--dataset', required=False,
+
+    parser.add_argument('--dataset', required=True,
                         metavar="/path/to/project/dataset/",
                         help='Directory of the project dataset')
-    parser.add_argument('--weights', required=True,
-                        metavar="/path/to/weights.h5",
-                        help="Path to weights .h5 file or 'coco'")
-    parser.add_argument('--format', required=False,
-                        metavar="RGB",
-                        help='RGB or RGB-D')
+
+    parser.add_argument('--logs', required=False,
+                        # default=DEFAULT_LOGS_DIR,
+                        metavar="/path/to/logs/",
+                        help='Logs and checkpoints directory (default=logs/)')
+    parser.add_argument('--attributes', required=True,
+                        metavar="[]",
+                        help="type in attributes as a list")
+
     args = parser.parse_args()
 
+    # class Project:
+    #     def __init__(self, weights, dataset, logs, attributes, format):
+    #         self.weights = weights
+    #         self.dataset = dataset
+    #         self.logs = logs
+    #         self.attributes = attributes
+    #         self.format = format
     # Validate arguments
     assert args.dataset, "Argument --dataset is required for training"
-    print("Weights: ", args.weights)
+
+    print("Weights: ", WEIGHT)
     print("Dataset: ", args.dataset)
     print("Logs: ", args.logs)
+    print("Attributes: ", list(args.attributes.split(",")))
+    print("Format: ", FORMAT)
 
     # Configurations
     config = projectConfig()
     config.display()
 
     # Create model
-    model = modellib.MaskRCNN(mode="training", config=config,
-                              model_dir=args.logs)
-
+    model = modellib.MaskRCNN(mode="training", config=config, model_dir=args.logs)
 
     # Select weights file to load
-    if args.weights.lower() == "coco":
-        weights_path = COCO_WEIGHTS_PATH
+    if WEIGHT.lower() == "coco":
+        weights_path = os.path.join(str(gui_root()), "stock", "mask_rcnn_coco.h5")
         # Download weights file
         if not os.path.exists(weights_path):
             utils.download_trained_weights(weights_path)
-    elif args.weights.lower() == "last":
+    elif WEIGHT.lower() == "last":
         # Find last trained weights
         weights_path = model.find_last()
-    elif args.weights.lower() == "imagenet":
+    elif WEIGHT.lower() == "imagenet":
         # Start from ImageNet trained weights
         weights_path = model.get_imagenet_weights()
     else:
@@ -223,24 +237,18 @@ if __name__ == '__main__':
 
     # Load weights
     print("Loading weights ", weights_path)
-    if args.weights.lower() == "coco":
+    if WEIGHT.lower() == "coco":
         # Exclude the last layers because they require a matching
         # number of classes
         model.load_weights(weights_path, by_name=True, exclude=[
             "mrcnn_class_logits", "mrcnn_bbox_fc",
             "mrcnn_bbox", "mrcnn_mask"])
     else:
-        model.load_weights(weights_path, by_name=True)
-        # model.load_weights(weights_path, by_name=True, exclude=[
-        #     "mrcnn_class_logits", "mrcnn_bbox_fc",
-        #     "mrcnn_bbox", "mrcnn_mask", "conv1"])
+        if FORMAT.lower() == "RGB":
+            model.load_weights(weights_path, by_name=True)
+        else:
+            model.load_weights(weights_path, by_name=True, exclude=[
+                "mrcnn_class_logits", "mrcnn_bbox_fc",
+                "mrcnn_bbox", "mrcnn_mask", "conv1"])
 
-    # Train or evaluate
-    if args.command == "train":
-        train(model)
-    # elif args.command == "splash":
-    #     detect_and_color_splash(model, image_path=args.image,
-    #                             video_path=args.video)
-    else:
-        print("'{}' is not recognized. "
-              "Use 'train' or 'splash'".format(args.command))
+    train(model)

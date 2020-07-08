@@ -8,7 +8,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -31,20 +30,15 @@ class Ui_MainWindow(object):
         self.formLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.formLayout.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         self.formLayout.setRowWrapPolicy(QtWidgets.QFormLayout.DontWrapRows)
-        self.formLayout.setFormAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self.formLayout.setFormAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.formLayout.setSpacing(6)
         self.formLayout.setObjectName("formLayout")
-        self.sdfLineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.sdfLineEdit.sizePolicy().hasHeightForWidth())
-        self.sdfLineEdit.setSizePolicy(sizePolicy)
-        self.sdfLineEdit.setObjectName("sdfLineEdit")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.sdfLineEdit)
         self.sdfLabel = QtWidgets.QLabel(self.centralwidget)
         self.sdfLabel.setObjectName("sdfLabel")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.sdfLabel)
+        self.project_name = QtWidgets.QLabel(self.centralwidget)
+        self.project_name.setObjectName("project_name")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.project_name)
         self.verticalLayout_4.addLayout(self.formLayout)
         self.list_widget_images = QtWidgets.QListWidget(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding)
@@ -110,8 +104,7 @@ class Ui_MainWindow(object):
         self.push_button_remove_models.setSizePolicy(sizePolicy)
         self.push_button_remove_models.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("../../icons/remove_circle_outline-24px.svg"), QtGui.QIcon.Normal,
-                        QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("../../icons/remove_circle_outline-24px.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.push_button_remove_models.setIcon(icon1)
         self.push_button_remove_models.setIconSize(QtCore.QSize(18, 18))
         self.push_button_remove_models.setObjectName("push_button_remove_models")
@@ -124,8 +117,7 @@ class Ui_MainWindow(object):
         self.push_button_go.setSizePolicy(sizePolicy)
         self.push_button_go.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("../../icons/play_circle_outline-24px.svg"), QtGui.QIcon.Normal,
-                        QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("../../icons/play_circle_outline-24px.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.push_button_go.setIcon(icon2)
         self.push_button_go.setIconSize(QtCore.QSize(18, 18))
         self.push_button_go.setObjectName("push_button_go")
@@ -295,13 +287,14 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuAnalyze.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget_2.setCurrentIndex(0)
+        self.tabWidget_2.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.sdfLabel.setText(_translate("MainWindow", "Name: "))
+        self.project_name.setText(_translate("MainWindow", "TextLabel"))
         self.push_button_add_images.setText(_translate("MainWindow", "Add Images"))
         self.push_button_add_images.setShortcut(_translate("MainWindow", "Ctrl+A"))
         self.push_button_remove_images.setText(_translate("MainWindow", "Remove Images"))
@@ -310,13 +303,11 @@ class Ui_MainWindow(object):
         self.push_button_add_models.setShortcut(_translate("MainWindow", "Shift+A"))
         self.push_button_remove_models.setShortcut(_translate("MainWindow", "Shift+R"))
         self.push_button_go.setShortcut(_translate("MainWindow", "Shift+R"))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tabWidget_2Page1),
-                                    _translate("MainWindow", "Automatically"))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tabWidget_2Page1), _translate("MainWindow", "Automatically"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Attributes"))
         self.push_button_add.setText(_translate("MainWindow", "Add"))
         self.push_button_remove.setText(_translate("MainWindow", "Remove"))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tabWidget_2Page2),
-                                    _translate("MainWindow", "Maually"))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tabWidget_2Page2), _translate("MainWindow", "Maually"))
         self.button_previous_page.setText(_translate("MainWindow", "Previous"))
         self.button_previous_page.setShortcut(_translate("MainWindow", "Left"))
         self.label_page_id.setText(_translate("MainWindow", "-- / --"))
@@ -349,3 +340,4 @@ class Ui_MainWindow(object):
         self.action_project_new.setText(_translate("MainWindow", "New"))
         self.action_project_new.setStatusTip(_translate("MainWindow", "Create a new project."))
         self.action_project_new.setShortcut(_translate("MainWindow", "Ctrl+N"))
+
