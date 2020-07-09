@@ -3,8 +3,8 @@ from pathlib import Path
 
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
-from src.view.create_project_scene import Ui_Dialog
-from src.view.utils import gui_root
+from src.create_project_scene import Ui_Dialog
+from src.utils import gui_root
 
 
 class CreateProjectDialog(QDialog, Ui_Dialog):
@@ -21,7 +21,6 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
 
     def accept(self):
         try:
-            # len(os.listdir(self.line_edit_location.text())) != 0:
             if any(True for _ in Path(self.line_edit_location.text()).iterdir()):
                 print("Directory is not empty")
                 msg = QMessageBox(self)
@@ -49,7 +48,7 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
                 data = {}
                 with open(Path(project_dir, 'project.json'), 'w') as outfile:
                     json.dump(data, outfile)
-                from src.view.main_scene_controller import MainScene
+                from src.main_scene_controller import MainScene
                 application = MainScene(project_dir, model_dir)
                 application.show()
                 # close the dialog.

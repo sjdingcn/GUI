@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -20,7 +21,7 @@ class Ui_Dialog(object):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("../../icons/quill-drawing-a-line.svg"))
+        self.label.setPixmap(QtGui.QPixmap("../icons/quill-drawing-a-line.svg"))
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self.verticalLayout_2.addWidget(self.label)
@@ -34,14 +35,14 @@ class Ui_Dialog(object):
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.push_button_create = QtWidgets.QPushButton(self.verticalLayoutWidget_2)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../../icons/add-24px.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../icons/add-24px.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.push_button_create.setIcon(icon)
         self.push_button_create.setFlat(True)
         self.push_button_create.setObjectName("push_button_create")
         self.verticalLayout_3.addWidget(self.push_button_create)
         self.push_button_open = QtWidgets.QPushButton(self.verticalLayoutWidget_2)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("../../icons/folder_open-24px.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("../icons/folder_open-24px.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.push_button_open.setIcon(icon1)
         self.push_button_open.setDefault(False)
         self.push_button_open.setFlat(True)
@@ -59,4 +60,3 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Welcome"))
         self.push_button_create.setText(_translate("Dialog", "Creat New Project"))
         self.push_button_open.setText(_translate("Dialog", "Open"))
-

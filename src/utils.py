@@ -4,6 +4,11 @@ import shutil
 from pathlib import Path
 
 
+def gui_root() -> Path:
+    """Returns gui root folder."""
+    return Path(__file__).parent.parent.parent
+
+
 def ready(data_dir, label_dir, total):
     with open(Path(label_dir, 'data.json')) as json_file:
         data = json.load(json_file)
@@ -46,3 +51,19 @@ def ready(data_dir, label_dir, total):
         shutil.copy2(source, destination)
     with open(Path(data_dir, 'train', 'new.json'), 'w') as outfile:
         json.dump(train, outfile)
+
+
+def get_files_from_dir(path, mode):
+    end = ()
+    ret = []
+    if mode == 'images':
+        end = ('.png', '.xpm', '.jpg')
+    elif mode == 'models':
+        end = '.h5'
+    else:
+        pass
+    for _, _, filenames in os.walk(path):
+        for filename in filenames:
+            if filename.endswith(end):
+                ret.append(filename)
+    return ret

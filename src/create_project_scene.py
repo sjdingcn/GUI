@@ -6,7 +6,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -80,7 +81,7 @@ class Ui_Dialog(object):
         self.verticalLayout_2.addLayout(self.verticalLayout)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout_2.addWidget(self.buttonBox)
 
@@ -100,4 +101,3 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "Image Format: "))
         self.comboBox.setItemText(0, _translate("Dialog", "RGB"))
         self.comboBox.setItemText(1, _translate("Dialog", "RGB-D"))
-

@@ -18,7 +18,7 @@ import skimage.draw
 from mrcnn import model as modellib, utils
 from mrcnn.config import Config
 
-from src.view.utils import gui_root
+from src.utils import gui_root
 
 # Path to trained weights file
 WEIGHT = 'coco'
@@ -69,7 +69,6 @@ class ProjectDataset(utils.Dataset):
         super().__init__()
         self.attributes = attributes
 
-    
     def load_image(self, image_id):
         """Load RGB or RGB-D images.
         """

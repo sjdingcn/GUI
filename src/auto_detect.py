@@ -8,7 +8,6 @@
 
 import json
 import os
-import sys
 
 import cv2 as cv
 import mrcnn.model as modellib
@@ -16,13 +15,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 
-import src.model.project as project
-
-# Root directory of the project
-ROOT_DIR = os.path.abspath("")
-
-# Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
+import src.project as project
 
 
 def detect(project_dir, model_dir, weight_name):
@@ -81,14 +74,9 @@ def detect(project_dir, model_dir, weight_name):
                                 if r['masks'][i, j, x]:
                                     image[i, j] = 1
                 img = np.uint8(image * 255)
-                # cv.imshow("test", img)
-                # cv.waitKey()
-                # print(masks[k])
+
                 contours, hierarchy = cv.findContours(img, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
                 for c in contours:
-                    # cv.drawContours(img, [c], -1, (255, 0, 0), 3)
-                    # print(c)
-
                     region = {"shape_attributes": {"name": "polygon", "all_points_x": c[:, 0, 0].tolist(),
                                                    "all_points_y": c[:, 0, 1].tolist()},
                               "region_attributes": {"Attribute": ""}}

@@ -4,10 +4,10 @@ from pathlib import Path
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
-from src.view.create_project_scene_controller import CreateProjectDialog
-from src.view.main_scene_controller import MainScene
-from src.view.utils import gui_root
-from src.view.welcome_scene import Ui_Dialog
+from src.create_project_scene_controller import CreateProjectDialog
+from src.main_scene_controller import MainScene
+from src.utils import gui_root
+from src.welcome_scene import Ui_Dialog
 
 
 class WelcomeDialog(QDialog, Ui_Dialog):

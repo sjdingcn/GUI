@@ -3,34 +3,17 @@ import json
 import os
 import shutil
 import subprocess
-from sys import platform
 from pathlib import Path
+from sys import platform
 
 from PyQt5.QtCore import Qt, QPoint, QSettings, pyqtSlot
 from PyQt5.QtGui import QPixmap, QImage, QPen, QPolygonF
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsScene, QGraphicsItem, QGraphicsPolygonItem, \
     QGraphicsPixmapItem, QButtonGroup, QRadioButton, QMessageBox, QGraphicsView, QAbstractButton
 
-from src.model.ready import ready
-from src.view.create_project_scene_controller import CreateProjectDialog
-from src.view.main_scene import *
-from src.view.utils import gui_root
-
-
-def get_files_from_dir(path, mode):
-    end = ()
-    ret = []
-    if mode == 'images':
-        end = ('.png', '.xpm', '.jpg')
-    elif mode == 'models':
-        end = '.h5'
-    else:
-        pass
-    for _, _, filenames in os.walk(path):
-        for filename in filenames:
-            if filename.endswith(end):
-                ret.append(filename)
-    return ret
+from src.create_project_scene_controller import CreateProjectDialog
+from src.main_scene import *
+from src.utils import gui_root, ready, get_files_from_dir
 
 
 class GUIPolygonItem(QGraphicsPolygonItem):
@@ -105,10 +88,7 @@ def json2polygons_ids(json_value, filename):
             for region in regions:
                 polygon_id = collections.namedtuple('polygon_id', ['polygon', 'id'])
                 points = []
-                # num = len(region["shape_attributes"]["all_points_x"])
-                # for i in range(0, num):
-                #     points.append(QPoint(region["shape_attributes"]["all_points_x"][i],
-                #                          region["shape_attributes"]["all_points_y"][i]))
+
                 for x, y in zip(region["shape_attributes"]["all_points_x"], region["shape_attributes"]["all_points_y"]):
                     points.append(QPoint(x, y))
                 polygon_id.polygon = QPolygonF(points)
@@ -201,8 +181,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
     def clear_all_check(self):
         for button in self.radio_button_group.buttons():
             button.setChecked(False)
-            # print(self.radio_button_group.buttons())
-        # print('clear')
 
     def closeEvent(self, event):
         self.project_save_handler()
@@ -212,7 +190,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
         with open(Path(gui_root() / 'stock', 'gui.json'), 'w') as outfile:
             json.dump(str(self.project_dir), outfile)
         QMainWindow.closeEvent(self, event)
-        # print('close')
 
     def readSettings(self):
         settings = QSettings("HSG", "GUI")
@@ -233,7 +210,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
                 new_main.show()
                 self.project_save_handler()
                 self.close()
-                # self.done(1)
             else:
                 msg = QMessageBox(self)
                 msg.setIcon(QMessageBox.Warning)
@@ -296,7 +272,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
                                       | QGraphicsItem.ItemIsFocusable)
                 polygon_item.id = polygon_id.id
 
-            # print('polygons')
         else:
             self.graphics_scene.clear()
 
@@ -331,7 +306,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
             if files:
                 print(files)
 
-                # copy files to the project auto_detect folder
+                # copy files to the model folder
                 for file in files:
                     shutil.copy2(file, self.model_dir)
                 self.list_widget_models_update()
@@ -407,7 +382,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
             self.push_button_go.setDown(True)
             self.statusbar.showMessage('Please wait, processing...')
 
-            from src.model.auto_detect import detect
+            from src.auto_detect import detect
             item = self.list_widget_models.currentItem()
 
             detect(self.project_dir, self.model_dir, item.text())
@@ -447,7 +422,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.project_save_handler()
 
     def polygon_id2radio_checked(self):
-        # print('selection changed')
         self.clear_all_check()
         try:
             polygon_id = self.graphics_scene.selectedItems()[0].id
@@ -457,41 +431,24 @@ class MainScene(QMainWindow, Ui_MainWindow):
         except IndexError:
             pass
 
-            # print('test')
-
     def polygons_ids2json(self):
-        # self.graphics_view.scene().update()
-        # print('polygons_ids2json')
 
         regions = []
         for item in self.graphics_scene.items():
             if isinstance(item, GUIPolygonItem):
-                # print(item.pos())
-                ##########################
+
                 x = []
                 y = []
                 for i in range(0, item.polygon().count()):
                     x.append(item.polygon().toPolygon().point(i).x() + item.pos().x())
                     y.append(item.polygon().toPolygon().point(i).y() + item.pos().y())
-                ################################
-                # print(x)
-                # print(y)
-                # item.setPos(item.pos())
-                # x1 = []
-                # y1 = []
-                # for i in range(0, item.polygon().count()):
-                #     # item.setPos(item.pos())
-                #     x1.append(item.polygon().toPolygon().point(i).x())
-                #     y1.append(item.polygon().toPolygon().point(i).y())
-                # print(x1)
-                # print(y1)
 
                 region = {"shape_attributes": {"name": "polygon", "all_points_x": x,
                                                "all_points_y": y},
                           "region_attributes": {"Attribute": item.id}}
                 # print(item.id)
                 regions.append(region)
-        # print(self.list_widget_images.currentItem())
+
         if self.list_widget_images.currentItem():
             filename = self.list_widget_images.currentItem().text()
             path = Path(self.label_dir, filename)
@@ -513,23 +470,12 @@ class MainScene(QMainWindow, Ui_MainWindow):
         if self.graphics_scene.selectedItems() and self.radio_button_group.checkedButton():
             self.graphics_scene.selectedItems()[0].id = self.radio_button_group.checkedButton().text()
         self.polygons_ids2json()
-        # print('tetsstest')
 
     def train_configurations_handler(self):
 
         shutil.copyfile(Path(gui_root(), 'src', 'model', 'project.py'), Path(self.project_dir, 'train_config.py'))
         opener = "open" if platform == "darwin" else "xdg-open"
         subprocess.call([opener, Path(self.project_dir, 'train_config.py')])
-
-        # msg = QMessageBox()
-        # msg.setIcon(QMessageBox.Information)
-        #
-        # msg.setText("Edit Training Configurations Successfully")
-        # # msg.setInformativeText("This is additional information")
-        # msg.setWindowTitle("Ready to Train")
-        #
-        # msg.setStandardButtons(QMessageBox.Ok)
-        # msg.exec_()
 
     def train_handler(self):
         self.statusbar.showMessage('Getting ready for training...')
