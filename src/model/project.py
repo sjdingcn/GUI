@@ -16,16 +16,11 @@ import imgaug
 import numpy as np
 import skimage.draw
 from mrcnn import model as modellib, utils
-# Root directory of the project
-# ROOT_DIR = os.path.abspath("")
-# ROOT_DIR = '/home/sijie/Desktop/GUI/stock/projects/test'
-# Import Mask RCNN
-# sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn.config import Config
 
-# Path to trained weights file
 from src.view.utils import gui_root
 
+# Path to trained weights file
 WEIGHT = 'coco'
 FORMAT = 'RGB'
 
@@ -34,8 +29,8 @@ FORMAT = 'RGB'
 #  Configurations
 ############################################################
 
-
-class projectConfig(Config):
+# TODO
+class ProjectConfig(Config):
     """Configuration for training on the toy  dataset.
     Derives from the base Config class and overrides some values.
     """
@@ -46,7 +41,6 @@ class projectConfig(Config):
     # Adjust down if you use a smaller GPU.
     IMAGES_PER_GPU = 3
 
-    # TODO
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1 + 1 + 1  # Background + AL + CU + Brass
 
@@ -60,20 +54,37 @@ class projectConfig(Config):
     IMAGE_MAX_DIM = 512
     RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
     TRAIN_ROIS_PER_IMAGE = 64
+    if FORMAT == 'RGB-D':
+        IMAGE_CHANNEL_COUNT = 4
+        MEAN_PIXEL = np.array([123.7, 116.8, 103.9, 220])
 
 
 ############################################################
 #  Dataset
 ############################################################
 
-class projectDataset(utils.Dataset):
+class ProjectDataset(utils.Dataset):
     def __init__(self, attributes):
 
         super().__init__()
         self.attributes = attributes
 
-    # TODO
-    def load_project(self, datasetDir, subset):
+    
+    def load_image(self, image_id):
+        """Load RGB or RGB-D images.
+        """
+        # Load image
+        image = skimage.io.imread(self.image_info[image_id]['path'])
+        # TODO N channels
+        # If grayscale. Convert to RGB for consistency.
+        if image.ndim != 3:
+            image = skimage.color.gray2rgb(image)
+        # If has an alpha channel, keep it.
+        if image.shape[-1] == 4:
+            pass
+        return image
+
+    def load_project(self, dataset_dir, subset):
         # Setup classes
         for attribute in self.attributes:
             i = 1
@@ -82,44 +93,43 @@ class projectDataset(utils.Dataset):
 
         # Create dataset path
         # assert subset in ["train", "val", "test"]
-        datasetDir = os.path.join(datasetDir, subset)
+        dataset_dir = os.path.join(dataset_dir, subset)
         # Read dataset information from the json file
-        jsonData = json.load(open(os.path.join(datasetDir, "new.json")))
+        json_data = json.load(open(os.path.join(dataset_dir, "new.json")))
         # Transfer dict to list
-        jsonData = list(jsonData.values())
+        json_data = list(json_data.values())
         # Load images and add them to the dataset
-        for data in jsonData:
+        for data in json_data:
 
-            imagePath = os.path.join(datasetDir, data["filename"])
-            image = skimage.io.imread(imagePath)
+            image_path = os.path.join(dataset_dir, data["filename"])
+            image = skimage.io.imread(image_path)
             height, width = image.shape[:2]
             if len(data["regions"]) > 1:
                 self.add_image(
                     "Attribute",
                     image_id=data["filename"],
-                    path=imagePath,
+                    path=image_path,
                     width=width,
                     height=height,
                     regions=data["regions"])
 
     def load_mask(self, image_id):
-        imageInfo = self.image_info[image_id]
-        regions = imageInfo["regions"]
+        image_info = self.image_info[image_id]
+        regions = image_info["regions"]
         masks = np.zeros(
-            [imageInfo["height"], imageInfo["width"], len(imageInfo["regions"])], dtype=np.uint8)
-        classIds = np.zeros(len(imageInfo["regions"]), dtype=np.int32)
+            [image_info["height"], image_info["width"], len(image_info["regions"])], dtype=np.uint8)
+        class_ids = np.zeros(len(image_info["regions"]), dtype=np.int32)
         for index, region in enumerate(regions):
             rr, cc = skimage.draw.polygon(
                 region["shape_attributes"]["all_points_y"],
                 region["shape_attributes"]["all_points_x"])
             masks[rr, cc, index] = 1
-            # TODO
             for i, attribute in enumerate(self.attributes):
 
                 if region["region_attributes"]["Attribute"] == attribute:
-                    classIds[index] = i
+                    class_ids[index] = i
 
-        return masks.astype(np.bool), classIds
+        return masks.astype(np.bool), class_ids
 
     def image_reference(self, image_id):
         """Return the path of the image."""
@@ -130,21 +140,23 @@ class projectDataset(utils.Dataset):
             super(self.__class__, self).image_reference(image_id)
 
 
+# TODO
 def train(model):
     """Train the model."""
     # Training dataset.
-    dataset_train = projectDataset(list(args.attributes.split(",")))
+    dataset_train = ProjectDataset(list(args.attributes.split(",")))
     dataset_train.load_project(args.dataset, "train")
     dataset_train.prepare()
 
     # Validation dataset
-    dataset_val = projectDataset(list(args.attributes.split(",")))
+    dataset_val = ProjectDataset(list(args.attributes.split(",")))
     dataset_val.load_project(args.dataset, "val")
     dataset_val.prepare()
 
     # Flip the image 50% of time
-    augmentation = imgaug.augmenters.Fliplr(0.5)
-    # TODO
+    # augmentation = imgaug.augmenters.Fliplr(0.5)
+    augmentation = imgaug.augmenters.Rot90(imgaug.ALL, keep_size=False)
+
     # Training - Stage 1
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
@@ -197,13 +209,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # class Project:
-    #     def __init__(self, weights, dataset, logs, attributes, format):
-    #         self.weights = weights
-    #         self.dataset = dataset
-    #         self.logs = logs
-    #         self.attributes = attributes
-    #         self.format = format
     # Validate arguments
     assert args.dataset, "Argument --dataset is required for training"
 
@@ -214,7 +219,7 @@ if __name__ == '__main__':
     print("Format: ", FORMAT)
 
     # Configurations
-    config = projectConfig()
+    config = ProjectConfig()
     config.display()
 
     # Create model

@@ -29,7 +29,7 @@ def detect(project_dir, model_dir, weight_name):
     # TODO: optimize the code
     label_dir = os.path.join(project_dir, 'label')
 
-    config = project.projectConfig()
+    config = project.ProjectConfig()
 
     class InferenceConfig(config.__class__):
         # Run detection on one image at a time

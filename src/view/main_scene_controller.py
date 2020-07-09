@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import subprocess
+from sys import platform
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, QPoint, QSettings, pyqtSlot
@@ -10,6 +11,7 @@ from PyQt5.QtGui import QPixmap, QImage, QPen, QPolygonF
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsScene, QGraphicsItem, QGraphicsPolygonItem, \
     QGraphicsPixmapItem, QButtonGroup, QRadioButton, QMessageBox, QGraphicsView, QAbstractButton
 
+from src.model.ready import ready
 from src.view.create_project_scene_controller import CreateProjectDialog
 from src.view.main_scene import *
 from src.view.utils import gui_root
@@ -123,7 +125,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
         # self.id = []
         self.project_dir = project_dir
-
+        self.data_dir = Path(self.project_dir, 'data')
         self.label_dir = Path(self.project_dir, 'label')
         print(self.project_dir)
         print(self.label_dir)
@@ -455,7 +457,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
         except IndexError:
             pass
 
-                # print('test')
+            # print('test')
 
     def polygons_ids2json(self):
         # self.graphics_view.scene().update()
@@ -516,12 +518,9 @@ class MainScene(QMainWindow, Ui_MainWindow):
     def train_configurations_handler(self):
 
         shutil.copyfile(Path(gui_root(), 'src', 'model', 'project.py'), Path(self.project_dir, 'train_config.py'))
-        opener = "open" if sys.platform == "darwin" else "xdg-open"
+        opener = "open" if platform == "darwin" else "xdg-open"
         subprocess.call([opener, Path(self.project_dir, 'train_config.py')])
 
-        # train_config = Ready(self.project_dir)
-        # train_config.image_rotate()
-        # train_config.json_rotate()
         # msg = QMessageBox()
         # msg.setIcon(QMessageBox.Information)
         #
@@ -533,7 +532,8 @@ class MainScene(QMainWindow, Ui_MainWindow):
         # msg.exec_()
 
     def train_handler(self):
-
+        self.statusbar.showMessage('Getting ready for training...')
+        ready(self.data_dir, self.label_dir, self.list_widget_images.count())
         attributes = [x.text() for x in self.radio_button_group.buttons()]
 
         # print(','.join(map(str, attributes)))
@@ -541,6 +541,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
                   + " --dataset=" + str(Path(self.project_dir, 'data')) + " --logs="
                   + str(Path(self.project_dir, 'logs')) + " --attributes=" + ','.join(
             map(str, attributes)) + "; exec bash\"'")
+        self.statusbar.showMessage('Once the training is finished, close the terminal.')
 
     def analyze_tensorboard_handler(self):
 
