@@ -90,7 +90,7 @@ def detect(project_dir, model_dir, weight_name):
     import tensorflow as tf
     from PIL import Image
 
-    from src import train_config
+    import train_config
 
     label_dir = Path(project_dir, 'label')
 
