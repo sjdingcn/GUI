@@ -38,7 +38,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="group_box">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
@@ -56,7 +56,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QRadioButton" name="radioButton">
+         <widget class="QRadioButton" name="radio_button_default">
           <property name="text">
            <string>Default Environment</string>
           </property>
@@ -70,14 +70,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_2">
+         <widget class="QRadioButton" name="radio_button_virtual">
           <property name="text">
-           <string>Virtual Environment</string>
+           <string>Virtual Environment (anaconda)</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit"/>
+         <widget class="QLineEdit" name="line_edit_virtual"/>
         </item>
        </layout>
       </widget>

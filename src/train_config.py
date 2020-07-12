@@ -11,6 +11,7 @@ Written by Waleed Abdulla
 
 import json
 import os
+from pathlib import Path
 
 import imgaug
 import numpy as np
@@ -18,18 +19,25 @@ import skimage.draw
 from mrcnn import model as modellib, utils
 from mrcnn.config import Config
 
-from src.utils import gui_root
+ROOT_DIR = Path(__file__).parent.absolute()
+DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 
-# Path to trained weights file
-WEIGHT = 'coco'
-FORMAT = 'RGB'
+project_json = {'attributes': []}
+try:
+    project_json = json.load(open(Path(ROOT_DIR, "project.json")))
+except FileNotFoundError:
+    pass
+
+# TODO Customize your own training weight and format.
+WEIGHT = 'coco'  # 'path/to/weight'
+FORMAT = 'RGB'  # 'RGB' or 'RGB-D'
 
 
 ############################################################
 #  Configurations
 ############################################################
 
-# TODO
+# TODO Customize your own configuration.
 class ProjectConfig(Config):
     """Configuration for training on the toy  dataset.
     Derives from the base Config class and overrides some values.
@@ -42,16 +50,19 @@ class ProjectConfig(Config):
     IMAGES_PER_GPU = 3
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 1 + 1 + 1  # Background + AL + CU + Brass
+    # When using auto detection, this value has to be equal with the value set in training.
+
+    NUM_CLASSES = 1 + 3  # Background + attributes
 
     # Number of training steps per epoch
     STEPS_PER_EPOCH = 100
 
-    # TODO adjust this
     DETECTION_MIN_CONFIDENCE = 0.5
-    # TODO image dimension
+
+    # image dimension
     IMAGE_MIN_DIM = 512
     IMAGE_MAX_DIM = 512
+
     RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)
     TRAIN_ROIS_PER_IMAGE = 64
     if FORMAT == 'RGB-D':
@@ -63,20 +74,16 @@ class ProjectConfig(Config):
 #  Dataset
 ############################################################
 
+# Do not change this class.
 class ProjectDataset(utils.Dataset):
-    def __init__(self, attributes):
-
-        super().__init__()
-        self.attributes = attributes
 
     def load_image(self, image_id):
         """Load RGB or RGB-D images.
         """
         # Load image
         image = skimage.io.imread(self.image_info[image_id]['path'])
-        # TODO N channels
         # If grayscale. Convert to RGB for consistency.
-        if image.ndim != 3:
+        if image.ndim == 2:
             image = skimage.color.gray2rgb(image)
         # If has an alpha channel, keep it.
         if image.shape[-1] == 4:
@@ -85,8 +92,8 @@ class ProjectDataset(utils.Dataset):
 
     def load_project(self, dataset_dir, subset):
         # Setup classes
-        for attribute in self.attributes:
-            i = 1
+        i = 1
+        for attribute in project_json['attributes']:
             self.add_class("Attribute", i, attribute)
             i += 1
 
@@ -94,7 +101,7 @@ class ProjectDataset(utils.Dataset):
         # assert subset in ["train", "val", "test"]
         dataset_dir = os.path.join(dataset_dir, subset)
         # Read dataset information from the json file
-        json_data = json.load(open(os.path.join(dataset_dir, "new.json")))
+        json_data = json.load(open(os.path.join(dataset_dir, "data.json")))
         # Transfer dict to list
         json_data = list(json_data.values())
         # Load images and add them to the dataset
@@ -123,8 +130,7 @@ class ProjectDataset(utils.Dataset):
                 region["shape_attributes"]["all_points_y"],
                 region["shape_attributes"]["all_points_x"])
             masks[rr, cc, index] = 1
-            for i, attribute in enumerate(self.attributes):
-
+            for i, attribute in enumerate(project_json['attributes'], 1):
                 if region["region_attributes"]["Attribute"] == attribute:
                     class_ids[index] = i
 
@@ -139,27 +145,26 @@ class ProjectDataset(utils.Dataset):
             super(self.__class__, self).image_reference(image_id)
 
 
-# TODO
+# TODO Customize your own train function.
 def train(model):
     """Train the model."""
     # Training dataset.
-    dataset_train = ProjectDataset(list(args.attributes.split(",")))
+    dataset_train = ProjectDataset()
     dataset_train.load_project(args.dataset, "train")
     dataset_train.prepare()
 
     # Validation dataset
-    dataset_val = ProjectDataset(list(args.attributes.split(",")))
+    dataset_val = ProjectDataset()
     dataset_val.load_project(args.dataset, "val")
     dataset_val.prepare()
 
     # Flip the image 50% of time
-    # augmentation = imgaug.augmenters.Fliplr(0.5)
     augmentation = imgaug.augmenters.Rot90(imgaug.ALL, keep_size=False)
 
     # Training - Stage 1
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=80,  # 40,
+                epochs=80,
                 layers='heads',
                 augmentation=augmentation)
 
@@ -168,7 +173,7 @@ def train(model):
     print("Fine tune Resnet stage 4 and up")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=240,  # 120,
+                epochs=240,
                 layers='4+',
                 augmentation=augmentation)
 
@@ -177,7 +182,7 @@ def train(model):
     print("Fine tune all layers")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 10,
-                epochs=400,  # 160,
+                epochs=400,
                 layers='all',
                 augmentation=augmentation)
 
@@ -185,7 +190,7 @@ def train(model):
 ############################################################
 #  Training
 ############################################################
-
+# Do not change the following codes.
 if __name__ == '__main__':
     import argparse
 
@@ -197,14 +202,10 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', required=True,
                         metavar="/path/to/project/dataset/",
                         help='Directory of the project dataset')
-
     parser.add_argument('--logs', required=False,
-                        # default=DEFAULT_LOGS_DIR,
+                        default=DEFAULT_LOGS_DIR,
                         metavar="/path/to/logs/",
                         help='Logs and checkpoints directory (default=logs/)')
-    parser.add_argument('--attributes', required=True,
-                        metavar="[]",
-                        help="type in attributes as a list")
 
     args = parser.parse_args()
 
@@ -213,8 +214,8 @@ if __name__ == '__main__':
 
     print("Weights: ", WEIGHT)
     print("Dataset: ", args.dataset)
-    print("Logs: ", args.logs)
-    print("Attributes: ", list(args.attributes.split(",")))
+    print("Logs: ", DEFAULT_LOGS_DIR)
+    print("Attributes: ", project_json['attributes'])
     print("Format: ", FORMAT)
 
     # Configurations
@@ -226,10 +227,16 @@ if __name__ == '__main__':
 
     # Select weights file to load
     if WEIGHT.lower() == "coco":
-        weights_path = os.path.join(str(gui_root()), "stock", "mask_rcnn_coco.h5")
-        # Download weights file
-        if not os.path.exists(weights_path):
-            utils.download_trained_weights(weights_path)
+        weights_path = str(Path(ROOT_DIR, "mask_rcnn_coco.h5"))
+
+        if Path(ROOT_DIR, "stock", "mask_rcnn_coco.h5").is_file():
+            weights_path = str(Path(ROOT_DIR, "stock", "mask_rcnn_coco.h5"))
+        elif Path(ROOT_DIR, "mask_rcnn_coco.h5").is_file():
+            pass
+        else:
+            # Download weights file
+            utils.download_trained_weights(str(weights_path))
+
     elif WEIGHT.lower() == "last":
         # Find last trained weights
         weights_path = model.find_last()
@@ -237,7 +244,7 @@ if __name__ == '__main__':
         # Start from ImageNet trained weights
         weights_path = model.get_imagenet_weights()
     else:
-        weights_path = args.weights
+        weights_path = WEIGHT
 
     # Load weights
     print("Loading weights ", weights_path)

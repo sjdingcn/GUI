@@ -9,11 +9,11 @@ from sys import platform
 from PyQt5.QtCore import Qt, QPoint, QSettings, pyqtSlot
 from PyQt5.QtGui import QPixmap, QImage, QPen, QPolygonF
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QGraphicsScene, QGraphicsItem, QGraphicsPolygonItem, \
-    QGraphicsPixmapItem, QButtonGroup, QRadioButton, QMessageBox, QGraphicsView, QAbstractButton
+    QGraphicsPixmapItem, QButtonGroup, QRadioButton, QGraphicsView, QAbstractButton
 
-from src.create_project_scene_controller import CreateProjectDialog
-from src.main_scene import *
-from src.utils import gui_root, ready, get_files_from_dir
+from create_project_scene_controller import CreateProjectDialog
+from main_scene import *
+from utils import gui_root, ready, get_files_from_dir, warning_msg_box, clear_folder
 
 
 class GUIPolygonItem(QGraphicsPolygonItem):
@@ -22,9 +22,8 @@ class GUIPolygonItem(QGraphicsPolygonItem):
         self.id = ''
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_D:
+        if event.key() == Qt.Key_D or Qt.Key_Delete:
             self.scene().removeItem(self)
-            # print('delete')
 
 
 class GUIPixmapItem(QGraphicsPixmapItem):
@@ -32,16 +31,13 @@ class GUIPixmapItem(QGraphicsPixmapItem):
         super(GUIPixmapItem, self).__init__(pixmap)
         self.points = []
         self.drawing = False
-        # self.start = False
         self.setAcceptHoverEvents(True)
 
     def mouseDoubleClickEvent(self, event):
         self.drawing = True
-        # self.start = True
         self.points.append(event.scenePos())
 
     def mousePressEvent(self, event):
-        # self.start = False
 
         if self.drawing:
             if event.button() == Qt.LeftButton:
@@ -52,11 +48,9 @@ class GUIPixmapItem(QGraphicsPixmapItem):
 
                 polygon_item = GUIPolygonItem(QPolygonF(self.points), self)
                 polygon_item.setPen(QPen(Qt.yellow, 1, Qt.SolidLine))
-                # self.scene().addItem(polygon_item)
 
                 polygon_item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsSelectable
                                       | QGraphicsItem.ItemIsFocusable)
-                # self.scene().update()
                 self.points.clear()
                 self.drawing = False
             else:
@@ -103,17 +97,21 @@ class MainScene(QMainWindow, Ui_MainWindow):
     def __init__(self, project_dir, model_dir):
         super(MainScene, self).__init__()
 
-        # self.id = []
         self.project_dir = project_dir
         self.data_dir = Path(self.project_dir, 'data')
         self.label_dir = Path(self.project_dir, 'label')
-        print(self.project_dir)
-        print(self.label_dir)
         self.model_dir = model_dir
+        self.environment = 'default'
+        self.project_json = {}
         self.json_data = {}
         self.setupUi(self)
         self.graphics_view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        # self.graphics_view.setDragMode(QGraphicsView.ScrollHandDrag)
+        try:
+            self.environment = json.load(open(Path(self.project_dir, "project.json")))['environment']
+
+        except:
+            pass
+        self.project_json['environment'] = self.environment
 
         # Controller for menu bar
         self.action_project_new.triggered.connect(self.project_new_handler)
@@ -128,6 +126,8 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.action_train_edit_configurations.triggered.connect(self.train_configurations_handler)
         self.action_train_train.triggered.connect(self.train_handler)
         self.action_analyze_tensorboard.triggered.connect(self.analyze_tensorboard_handler)
+        self.action_train_inspect_training_data.triggered.connect(lambda: self.open_jupyter_notebook('data'))
+        self.action_analyze_inspect_trained_model.triggered.connect(lambda: self.open_jupyter_notebook('model'))
 
         # Controller for list widget of images
         self.project_name.setText(str(self.project_dir))
@@ -137,11 +137,10 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
         # Controller for list widget of models
         self.list_widget_models.itemSelectionChanged.connect(lambda: self.selection_handler('models'))
+        self.push_button_model_setting.clicked.connect(self.model_setting_handler)
         self.push_button_add_models.clicked.connect(lambda: self.open_file_names_dialog('models'))
         self.push_button_remove_models.clicked.connect(lambda: self.remove_files_handler('models'))
         self.push_button_go.clicked.connect(self.go_handler)
-
-        # self.pushButton.pressed.connect(self.handleButton)
 
         # Controller for graphic view
         self.button_previous_page.clicked.connect(lambda: self.page_turning_handler('previous_page'))
@@ -156,18 +155,17 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.radio_button_group.setExclusive(False)
         self.push_button_add.clicked.connect(self.add_attribute_id)
         self.push_button_remove.clicked.connect(self.remove_attribute_id)
-        # self.radio_button_group.buttonClicked.connect(self.id_changed_handler)
         self.radio_button_group.buttonClicked[QAbstractButton].connect(lambda i: self.id_changed_handler(i))
-        # print(self.radio_button_group.buttons())
-
-        for attribute in json.load(open(Path(self.project_dir, "project.json"))):
-            print(attribute)
-            radio_button = QRadioButton(self.groupBox_2)
-            radio_button.setObjectName("radio_button")
-            radio_button.setText(attribute)
-            self.radio_button_group.addButton(radio_button)
-        for button in self.radio_button_group.buttons():
-            self.verticalLayout_6.addWidget(button)
+        try:
+            for attribute in json.load(open(Path(self.project_dir, "project.json")))['attributes']:
+                radio_button = QRadioButton(self.groupBox_2)
+                radio_button.setObjectName("radio_button")
+                radio_button.setText(attribute)
+                self.radio_button_group.addButton(radio_button)
+            for button in self.radio_button_group.buttons():
+                self.verticalLayout_6.addWidget(button)
+        except KeyError:
+            pass
 
         try:
             self.readSettings()
@@ -203,7 +201,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
     def project_open_handler(self):
         file = QFileDialog.getExistingDirectory(self, "Open Project")
-        print(file)
         if file:
             if Path(file, 'project.json').is_file():
                 new_main = MainScene(Path(file), model_dir=gui_root() / 'stock')
@@ -211,16 +208,7 @@ class MainScene(QMainWindow, Ui_MainWindow):
                 self.project_save_handler()
                 self.close()
             else:
-                msg = QMessageBox(self)
-                msg.setIcon(QMessageBox.Warning)
-
-                msg.setText("'" + file + "' is not a project.")
-                msg.setInformativeText("Please select an existing project.")
-                msg.setWindowTitle("Warning")
-
-                msg.setStandardButtons(QMessageBox.Ok)
-
-                msg.exec_()
+                warning_msg_box(self, "'" + file + "' is not a project.", "Please select an existing project.")
         return
 
     def project_save_handler(self):
@@ -228,7 +216,8 @@ class MainScene(QMainWindow, Ui_MainWindow):
             json.dump(self.json_data, outfile)
         with open(Path(self.project_dir, 'project.json'), 'w') as outfile:
             attributes = [x.text() for x in self.radio_button_group.buttons()]
-            json.dump(attributes, outfile)
+            self.project_json['attributes'] = attributes
+            json.dump(self.project_json, outfile)
 
     def list_widget_images_update(self):
         self.list_widget_images.clear()
@@ -292,7 +281,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
             files, _ = QFileDialog.getOpenFileNames(None, "choose images", "",
                                                     "Images (*.png *.xpm *.jpg)", options=options)
             if files:
-                print(files)
 
                 # copy files to the project label folder
                 for file in files:
@@ -304,7 +292,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
             files, _ = QFileDialog.getOpenFileNames(None, "choose models", "",
                                                     "Models (*.h5)", options=options)
             if files:
-                print(files)
 
                 # copy files to the model folder
                 for file in files:
@@ -322,11 +309,10 @@ class MainScene(QMainWindow, Ui_MainWindow):
                     size = os.stat(path).st_size
                     key = item.text() + str(size)
                     del self.json_data[key]
-                    # print('delete')
                 except KeyError:
                     pass
                 os.remove(Path(self.label_dir, item.text()))
-            self.project_save_handler()
+                self.project_save_handler()
             self.list_widget_images_update()
             self.label_page_id_update()
         elif mode == 'models':
@@ -377,12 +363,16 @@ class MainScene(QMainWindow, Ui_MainWindow):
         else:
             pass
 
+    def model_setting_handler(self):
+        opener = "open" if platform == "darwin" else "xdg-open"
+        subprocess.call([opener, Path(gui_root(), 'src', 'train_config.py')])
+
     def go_handler(self):
         try:
             self.push_button_go.setDown(True)
             self.statusbar.showMessage('Please wait, processing...')
 
-            from src.auto_detect import detect
+            from utils import detect
             item = self.list_widget_models.currentItem()
 
             detect(self.project_dir, self.model_dir, item.text())
@@ -400,12 +390,8 @@ class MainScene(QMainWindow, Ui_MainWindow):
     def add_attribute_id(self):
 
         if self.line_edit_id.text() in [x.text() for x in self.radio_button_group.buttons()]:
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Attributes cannot be duplicated.")
-            msg.setWindowTitle("Warning")
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
+            warning_msg_box(self, "Attributes cannot be duplicated.", "")
+
         else:
             radio_button = QRadioButton(self.groupBox_2)
             radio_button.setObjectName("radio_button")
@@ -416,10 +402,13 @@ class MainScene(QMainWindow, Ui_MainWindow):
         self.project_save_handler()
 
     def remove_attribute_id(self):
-        self.verticalLayout_6.removeWidget(self.radio_button_group.checkedButton())
-        self.radio_button_group.checkedButton().deleteLater()
-        self.radio_button_group.removeButton(self.radio_button_group.checkedButton())
-        self.project_save_handler()
+        try:
+            self.verticalLayout_6.removeWidget(self.radio_button_group.checkedButton())
+            self.radio_button_group.checkedButton().deleteLater()
+            self.radio_button_group.removeButton(self.radio_button_group.checkedButton())
+            self.project_save_handler()
+        except AttributeError:
+            pass
 
     def polygon_id2radio_checked(self):
         self.clear_all_check()
@@ -446,7 +435,6 @@ class MainScene(QMainWindow, Ui_MainWindow):
                 region = {"shape_attributes": {"name": "polygon", "all_points_x": x,
                                                "all_points_y": y},
                           "region_attributes": {"Attribute": item.id}}
-                # print(item.id)
                 regions.append(region)
 
         if self.list_widget_images.currentItem():
@@ -473,21 +461,33 @@ class MainScene(QMainWindow, Ui_MainWindow):
 
     def train_configurations_handler(self):
 
-        shutil.copyfile(Path(gui_root(), 'src', 'model', 'project.py'), Path(self.project_dir, 'train_config.py'))
         opener = "open" if platform == "darwin" else "xdg-open"
         subprocess.call([opener, Path(self.project_dir, 'train_config.py')])
 
     def train_handler(self):
-        self.statusbar.showMessage('Getting ready for training...')
-        ready(self.data_dir, self.label_dir, self.list_widget_images.count())
-        attributes = [x.text() for x in self.radio_button_group.buttons()]
+        if self.list_widget_images.count() < 10:
+            warning_msg_box(self, "At least 10 images", "")
 
-        # print(','.join(map(str, attributes)))
-        os.system("gnome-terminal -e 'bash -c \"python3 " + str(Path(self.project_dir, 'train_config.py'))
-                  + " --dataset=" + str(Path(self.project_dir, 'data')) + " --logs="
-                  + str(Path(self.project_dir, 'logs')) + " --attributes=" + ','.join(
-            map(str, attributes)) + "; exec bash\"'")
-        self.statusbar.showMessage('Once the training is finished, close the terminal.')
+        else:
+            self.statusbar.showMessage('Getting ready for training...')
+            try:
+                clear_folder(self.data_dir / 'train')
+                clear_folder(self.data_dir / 'test')
+                clear_folder(self.data_dir / 'val')
+
+                ready(self.data_dir, self.label_dir, self.list_widget_images.count())
+                from numba import cuda
+                device = cuda.get_current_device()
+                device.reset()
+                os.system("gnome-terminal -e 'bash -c \"python3 " + str(
+                    Path(self.project_dir, 'train_config.py'))
+                          + " --dataset=" + str(Path(self.project_dir, 'data')) + "; exec bash\"'")
+            except IndexError:
+                warning_msg_box(self, "No training data", "")
+            except FileNotFoundError:
+                warning_msg_box(self, "No enough training data", "")
+
+            self.statusbar.showMessage('Once the training is finished, close the terminal.')
 
     def analyze_tensorboard_handler(self):
 
@@ -495,11 +495,20 @@ class MainScene(QMainWindow, Ui_MainWindow):
             "gnome-terminal -e 'bash -c \"tensorboard --logdir " + str(
                 Path(self.project_dir, 'logs')) + "; exec bash\"'")
 
+    def open_jupyter_notebook(self, mode):
+        if mode == 'data':
+            os.system(
+                "gnome-terminal -e 'bash -c \"jupyter notebook " + str(
+                    Path(self.project_dir, 'inspect_data.ipynb')) + "; exec bash\"'")
+        else:
+            os.system(
+                "gnome-terminal -e 'bash -c \"jupyter notebook " + str(
+                    Path(self.project_dir, 'inspect_model.ipynb')) + "; exec bash\"'")
 
-if __name__ == "__main__":
-    import sys
-
-    app = QtWidgets.QApplication(sys.argv)
-    application = MainScene(Path('/home/sijie/Desktop/test_project'), Path('/home/sijie/Desktop/GUI/stock'))
-    application.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     import sys
+#
+#     app = QtWidgets.QApplication(sys.argv)
+#     application = MainScene(Path('/path/to/project_dir'), Path('/path/to/model_dir'))
+#     application.show()
+#     sys.exit(app.exec_())

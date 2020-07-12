@@ -1,10 +1,11 @@
 import json
+import shutil
 from pathlib import Path
 
-from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QDialog, QFileDialog, QButtonGroup
 
-from src.create_project_scene import Ui_Dialog
-from src.utils import gui_root
+from create_project_scene import Ui_Dialog
+from utils import gui_root, warning_msg_box
 
 
 class CreateProjectDialog(QDialog, Ui_Dialog):
@@ -14,6 +15,11 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
         self.line_edit_location.setText('/path/to/untitled/')
         self.tool_button_location.clicked.connect(self.project_location_handler)
+        self.radio_button_group = QButtonGroup(self.group_box)
+        self.radio_button_group.setExclusive(True)
+        self.radio_button_default.setChecked(True)
+        self.line_edit_virtual.setEnabled(False)
+        self.radio_button_virtual.toggled.connect(lambda i: self.line_edit_virtual.setEnabled(i))
 
     def project_location_handler(self):
         file = str(QFileDialog.getExistingDirectory(self, "Select Base Directory"))
@@ -23,15 +29,7 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
         try:
             if any(True for _ in Path(self.line_edit_location.text()).iterdir()):
                 print("Directory is not empty")
-                msg = QMessageBox(self)
-                msg.setIcon(QMessageBox.Warning)
-
-                msg.setText("The directory is not empty. Please select an empty directory.")
-                msg.setWindowTitle("Warning")
-
-                msg.setStandardButtons(QMessageBox.Ok)
-
-                msg.exec_()
+                warning_msg_box(self, "The directory is not empty. Please select an empty directory.", "")
 
             else:
                 project_dir = Path(self.line_edit_location.text())
@@ -44,25 +42,25 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
                 Path(project_dir, 'data', 'val').mkdir(parents=True, exist_ok=True)
                 Path(project_dir, 'data', 'test').mkdir(parents=True, exist_ok=True)
                 Path(project_dir, 'logs').mkdir(parents=True, exist_ok=True)
+                shutil.copy2(Path(gui_root(), 'src', 'train_config.py'), project_dir)
+                shutil.copy2(Path(gui_root(), 'src', 'inspect_data.ipynb'), project_dir)
+                shutil.copy2(Path(gui_root(), 'src', 'inspect_model.ipynb'), project_dir)
 
                 data = {}
                 with open(Path(project_dir, 'project.json'), 'w') as outfile:
                     json.dump(data, outfile)
-                from src.main_scene_controller import MainScene
+                from main_scene_controller import MainScene
                 application = MainScene(project_dir, model_dir)
+                if self.line_edit_virtual.text():
+                    application.environment = self.line_edit_virtual.text()
+                    with open(Path(self.project_dir, 'project.json'), 'w') as outfile:
+                        self.project_json['environment'] = self.line_edit_virtual.text()
+                        json.dump(self.project_json, outfile)
                 application.show()
                 # close the dialog.
                 self.done(1)
 
         except FileNotFoundError:
             print("No such or directory: " + self.line_edit_location.text())
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Warning)
-
-            msg.setText("No such or directory: '" + self.line_edit_location.text() + "'")
-            msg.setInformativeText("Please select an existing directory.")
-            msg.setWindowTitle("Warning")
-
-            msg.setStandardButtons(QMessageBox.Ok)
-
-            msg.exec_()
+            warning_msg_box(self, "No such or directory: '" + self.line_edit_location.text() + "'",
+                            "Please select an existing directory.")

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'create_project_scene.ui'
+# Form implementation generated from reading ui file '/home/sijie/Desktop/GUI/ui/create_project_scene.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtWidgets
-
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -29,32 +28,32 @@ class Ui_Dialog(object):
         self.tool_button_location.setObjectName("tool_button_location")
         self.horizontalLayout.addWidget(self.tool_button_location)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.groupBox = QtWidgets.QGroupBox(Dialog)
+        self.group_box = QtWidgets.QGroupBox(Dialog)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
-        self.groupBox.setSizePolicy(sizePolicy)
-        self.groupBox.setFlat(False)
-        self.groupBox.setCheckable(False)
-        self.groupBox.setObjectName("groupBox")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.groupBox)
+        sizePolicy.setHeightForWidth(self.group_box.sizePolicy().hasHeightForWidth())
+        self.group_box.setSizePolicy(sizePolicy)
+        self.group_box.setFlat(False)
+        self.group_box.setCheckable(False)
+        self.group_box.setObjectName("group_box")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.group_box)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.radioButton = QtWidgets.QRadioButton(self.groupBox)
-        self.radioButton.setObjectName("radioButton")
-        self.verticalLayout_3.addWidget(self.radioButton)
-        self.line = QtWidgets.QFrame(self.groupBox)
+        self.radio_button_default = QtWidgets.QRadioButton(self.group_box)
+        self.radio_button_default.setObjectName("radio_button_default")
+        self.verticalLayout_3.addWidget(self.radio_button_default)
+        self.line = QtWidgets.QFrame(self.group_box)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
         self.verticalLayout_3.addWidget(self.line)
-        self.radioButton_2 = QtWidgets.QRadioButton(self.groupBox)
-        self.radioButton_2.setObjectName("radioButton_2")
-        self.verticalLayout_3.addWidget(self.radioButton_2)
-        self.lineEdit = QtWidgets.QLineEdit(self.groupBox)
-        self.lineEdit.setObjectName("lineEdit")
-        self.verticalLayout_3.addWidget(self.lineEdit)
-        self.verticalLayout.addWidget(self.groupBox)
+        self.radio_button_virtual = QtWidgets.QRadioButton(self.group_box)
+        self.radio_button_virtual.setObjectName("radio_button_virtual")
+        self.verticalLayout_3.addWidget(self.radio_button_virtual)
+        self.line_edit_virtual = QtWidgets.QLineEdit(self.group_box)
+        self.line_edit_virtual.setObjectName("line_edit_virtual")
+        self.verticalLayout_3.addWidget(self.line_edit_virtual)
+        self.verticalLayout.addWidget(self.group_box)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.label_2 = QtWidgets.QLabel(Dialog)
@@ -81,7 +80,7 @@ class Ui_Dialog(object):
         self.verticalLayout_2.addLayout(self.verticalLayout)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout_2.addWidget(self.buttonBox)
 
@@ -95,9 +94,10 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label.setText(_translate("Dialog", "Location:"))
         self.tool_button_location.setText(_translate("Dialog", "..."))
-        self.groupBox.setTitle(_translate("Dialog", "Environment: "))
-        self.radioButton.setText(_translate("Dialog", "Default Environment"))
-        self.radioButton_2.setText(_translate("Dialog", "Virtual Environment"))
+        self.group_box.setTitle(_translate("Dialog", "Environment: "))
+        self.radio_button_default.setText(_translate("Dialog", "Default Environment"))
+        self.radio_button_virtual.setText(_translate("Dialog", "Virtual Environment (anaconda)"))
         self.label_2.setText(_translate("Dialog", "Image Format: "))
         self.comboBox.setItemText(0, _translate("Dialog", "RGB"))
         self.comboBox.setItemText(1, _translate("Dialog", "RGB-D"))
+

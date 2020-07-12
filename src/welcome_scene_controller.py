@@ -2,12 +2,12 @@ import json
 from pathlib import Path
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QDialog, QFileDialog
 
-from src.create_project_scene_controller import CreateProjectDialog
-from src.main_scene_controller import MainScene
-from src.utils import gui_root
-from src.welcome_scene import Ui_Dialog
+from create_project_scene_controller import CreateProjectDialog
+from main_scene_controller import MainScene
+from utils import gui_root, warning_msg_box
+from welcome_scene import Ui_Dialog
 
 
 class WelcomeDialog(QDialog, Ui_Dialog):
@@ -28,23 +28,13 @@ class WelcomeDialog(QDialog, Ui_Dialog):
 
     def open_handler(self):
         file = QFileDialog.getExistingDirectory(self, "Open Project")
-        print(file)
         if file:
             if Path(file, 'project.json').is_file():
                 new_main = MainScene(Path(file), model_dir=gui_root() / 'stock')
                 new_main.show()
                 self.done(1)
             else:
-                msg = QMessageBox(self)
-                msg.setIcon(QMessageBox.Warning)
-
-                msg.setText("'" + file + "' is not a project.")
-                msg.setInformativeText("Please select an existing project.")
-                msg.setWindowTitle("Warning")
-
-                msg.setStandardButtons(QMessageBox.Ok)
-
-                msg.exec_()
+                warning_msg_box(self, "'" + file + "' is not a project.", "Please select an existing project.")
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../icons/quill-drawing-a-line.svg</pixmap>
+          <pixmap>../icons/quill-drawing-a-line.svg</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -50,7 +50,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>../../icons/add-24px.svg</normaloff>../../icons/add-24px.svg</iconset>
+               <normaloff>../icons/add-24px.svg</normaloff>../icons/add-24px.svg</iconset>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -64,7 +64,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>../../icons/folder_open-24px.svg</normaloff>../../icons/folder_open-24px.svg</iconset>
+               <normaloff>../icons/folder_open-24px.svg</normaloff>../icons/folder_open-24px.svg</iconset>
              </property>
              <property name="default">
               <bool>false</bool>

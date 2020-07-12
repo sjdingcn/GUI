@@ -129,7 +129,7 @@
            </size>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabWidget_2Page1">
            <attribute name="title">
@@ -148,6 +148,23 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QPushButton" name="push_button_model_setting">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../icons/settings-24px.svg</normaloff>../icons/settings-24px.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="push_button_add_models">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -160,7 +177,7 @@
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../../icons/add_circle_outline-24px.svg</normaloff>../../icons/add_circle_outline-24px.svg</iconset>
+                    <normaloff>../icons/add_circle_outline-24px.svg</normaloff>../icons/add_circle_outline-24px.svg</iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -186,7 +203,7 @@
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../../icons/remove_circle_outline-24px.svg</normaloff>../../icons/remove_circle_outline-24px.svg</iconset>
+                    <normaloff>../icons/remove_circle_outline-24px.svg</normaloff>../icons/remove_circle_outline-24px.svg</iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -212,7 +229,7 @@
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../../icons/play_circle_outline-24px.svg</normaloff>../../icons/play_circle_outline-24px.svg</iconset>
+                    <normaloff>../icons/play_circle_outline-24px.svg</normaloff>../icons/play_circle_outline-24px.svg</iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -379,14 +396,16 @@
     <property name="title">
      <string>Train</string>
     </property>
-    <addaction name="action_train_train"/>
     <addaction name="action_train_edit_configurations"/>
+    <addaction name="action_train_inspect_training_data"/>
+    <addaction name="action_train_train"/>
    </widget>
    <widget class="QMenu" name="menuAnalyze">
     <property name="title">
      <string>Analyze</string>
     </property>
     <addaction name="action_analyze_tensorboard"/>
+    <addaction name="action_analyze_inspect_trained_model"/>
    </widget>
    <widget class="QMenu" name="menuFile_2">
     <property name="title">
@@ -409,7 +428,7 @@
   <action name="action_project_save">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/save-24px.svg</normaloff>../../icons/save-24px.svg</iconset>
+     <normaloff>../icons/save-24px.svg</normaloff>../icons/save-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -424,7 +443,7 @@
   <action name="action_project_open">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/folder_open-24px.svg</normaloff>../../icons/folder_open-24px.svg</iconset>
+     <normaloff>../icons/folder_open-24px.svg</normaloff>../icons/folder_open-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -455,7 +474,7 @@
   <action name="action_file_zoom_in">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/zoom_in-24px.svg</normaloff>../../icons/zoom_in-24px.svg</iconset>
+     <normaloff>../icons/zoom_in-24px.svg</normaloff>../icons/zoom_in-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom In</string>
@@ -464,7 +483,7 @@
   <action name="action_file_zoom_out">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/zoom_out-24px.svg</normaloff>../../icons/zoom_out-24px.svg</iconset>
+     <normaloff>../icons/zoom_out-24px.svg</normaloff>../icons/zoom_out-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom Out</string>
@@ -473,7 +492,7 @@
   <action name="action_file_default_size">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/fullscreen_exit-24px.svg</normaloff>../../icons/fullscreen_exit-24px.svg</iconset>
+     <normaloff>../icons/fullscreen_exit-24px.svg</normaloff>../icons/fullscreen_exit-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Default Size</string>
@@ -482,7 +501,7 @@
   <action name="action_file_delete_polygon">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/delete-24px.svg</normaloff>../../icons/delete-24px.svg</iconset>
+     <normaloff>../icons/delete-24px.svg</normaloff>../icons/delete-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Delete Polygon</string>
@@ -491,7 +510,7 @@
   <action name="action_train_train">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/play_arrow-24px.svg</normaloff>../../icons/play_arrow-24px.svg</iconset>
+     <normaloff>../icons/play_arrow-24px.svg</normaloff>../icons/play_arrow-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Train</string>
@@ -503,7 +522,7 @@
   <action name="action_train_edit_configurations">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/build-24px.svg</normaloff>../../icons/build-24px.svg</iconset>
+     <normaloff>../icons/build-24px.svg</normaloff>../icons/build-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Edit Configurations</string>
@@ -515,7 +534,7 @@
   <action name="action_analyze_tensorboard">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/show_chart-24px.svg</normaloff>../../icons/show_chart-24px.svg</iconset>
+     <normaloff>../icons/show_chart-24px.svg</normaloff>../icons/show_chart-24px.svg</iconset>
    </property>
    <property name="text">
     <string>Tensorboard</string>
@@ -527,7 +546,7 @@
   <action name="action_project_new">
    <property name="icon">
     <iconset>
-     <normaloff>../../icons/add-24px.svg</normaloff>../../icons/add-24px.svg</iconset>
+     <normaloff>../icons/add-24px.svg</normaloff>../icons/add-24px.svg</iconset>
    </property>
    <property name="text">
     <string>New</string>
@@ -537,6 +556,29 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_inspect_training_data">
+   <property name="text">
+    <string>Inspect Training Data</string>
+   </property>
+  </action>
+  <action name="action_analyze_inspect_trained_model">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/insert_chart-24px.svg</normaloff>../icons/insert_chart-24px.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Inspect Trained Model</string>
+   </property>
+  </action>
+  <action name="action_train_inspect_training_data">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/insert_chart-24px.svg</normaloff>../icons/insert_chart-24px.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Inspect Training Data</string>
    </property>
   </action>
  </widget>

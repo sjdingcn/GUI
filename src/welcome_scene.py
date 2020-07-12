@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'welcome_scene.ui'
+# Form implementation generated from reading ui file '/home/sijie/Desktop/GUI/ui/welcome_scene.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -60,3 +59,4 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Welcome"))
         self.push_button_create.setText(_translate("Dialog", "Creat New Project"))
         self.push_button_open.setText(_translate("Dialog", "Open"))
+
