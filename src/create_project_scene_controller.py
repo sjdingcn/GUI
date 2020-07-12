@@ -35,6 +35,7 @@ class CreateProjectDialog(QDialog, Ui_Dialog):
                 project_dir = Path(self.line_edit_location.text())
                 project_dir.mkdir(parents=True, exist_ok=True)
                 model_dir = gui_root() / 'stock'
+                model_dir.mkdir(parents=True, exist_ok=True)
 
                 Path(project_dir, 'label').mkdir(parents=True, exist_ok=True)
                 Path(project_dir, 'data').mkdir(parents=True, exist_ok=True)
