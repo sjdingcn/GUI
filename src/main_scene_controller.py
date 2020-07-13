@@ -370,12 +370,12 @@ class MainScene(QMainWindow, Ui_MainWindow):
     def go_handler(self):
         try:
             self.push_button_go.setDown(True)
-            self.statusbar.showMessage('Please wait, processing...')
+            self.statusbar.showMessage('Please wait, loading...')
 
             from utils import detect
             item = self.list_widget_models.currentItem()
 
-            detect(self.project_dir, self.model_dir, item.text())
+            detect(self, self.project_dir, self.model_dir, item.text())
             self.graphics_view_update()
             self.statusbar.showMessage('Done')
             self.push_button_go.setDown(False)

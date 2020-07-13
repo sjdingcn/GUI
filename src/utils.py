@@ -83,7 +83,7 @@ def warning_msg_box(parent, text, informative_text):
     msg.exec_()
 
 
-def detect(project_dir, model_dir, weight_name):
+def detect(scene, project_dir, model_dir, weight_name):
     import cv2 as cv
     import mrcnn.model as modellib
     import numpy as np
@@ -129,6 +129,7 @@ def detect(project_dir, model_dir, weight_name):
     for root, _, filenames in os.walk(label_dir):
         for filename in filenames:
             if filename.endswith(('.png', '.xpm', '.jpg')):
+                scene.statusbar.showMessage("Processing image: '" + filename + "'")
                 image = np.asarray(Image.open(Path(root, filename)))
                 results = model.detect([image], verbose=1)
                 r = results[0]
