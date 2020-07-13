@@ -143,7 +143,7 @@
                 <item>
                  <widget class="QLabel" name="label">
                   <property name="text">
-                   <string>Existed Model: </string>
+                   <string>Existing Models: </string>
                   </property>
                  </widget>
                 </item>
