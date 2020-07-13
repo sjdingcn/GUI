@@ -1,7 +1,7 @@
 # HSG-GUI for Image Labeling, Model Training and Result Analyzing
 
 This is a GUI application made for HSG Company based on [Mask R-CNN](https://arxiv.org/abs/1703.06870). HSG-GUI involves functions of labeling, training, and analyzing. This application is specially designed for users who are not familiar with deep learning so that they can label, train, and analyze models in one place.
-
+![HSG-GUI](icons/HSG-GUI.png)
 # Requirements
 
    - PyQt5
