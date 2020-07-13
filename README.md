@@ -11,7 +11,4 @@ This is a GUI application built for HSG Company based on [Mask R-CNN](https://ar
 
     python3 welcome_scene_controller.py
 
-# Keyboard Shortcuts
-    
-
 # Step by Step Demo

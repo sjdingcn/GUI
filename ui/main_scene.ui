@@ -162,6 +162,9 @@
                    <iconset>
                     <normaloff>../icons/settings-24px.svg</normaloff>../icons/settings-24px.svg</iconset>
                   </property>
+                  <property name="shortcut">
+                   <string>Shift+S</string>
+                  </property>
                  </widget>
                 </item>
                 <item>
@@ -238,7 +241,7 @@
                    </size>
                   </property>
                   <property name="shortcut">
-                   <string>Shift+R</string>
+                   <string>Shift+G</string>
                   </property>
                  </widget>
                 </item>
