@@ -9,7 +9,7 @@ This is a GUI application made for HSG Company based on [Mask R-CNN](https://arx
 # Getting Started
     python3 welcome_scene_controller.py
     
-# How to annotate
+# How to Annotate
 1. Double click left mouse button to **start** painting.
 2. Single click left mouse button to **record** a point.
 3. Single click right mouse button to **end** painting.
